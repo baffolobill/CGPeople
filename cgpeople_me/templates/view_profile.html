@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load markup %}
+
+{% block title %}{{ profile.name }} | CG People{% endblock %}
+
+{% block scripts %}<script src="{{ STATIC_URL }}js/view_profile_loader.js"></script>{% endblock %}
+
+
+{% block body %}
+<section class="profile clearfix">
+    <header class="clearfix">
+        <div class="avatar clearfix">
+            <img src="http://img.tweetimag.es/i/{{ profile.user.twitterinfo.name }}_b" width="73" height="73">
+        </div>
+        <hgroup class="header clearfix">
+            <h2>{{ profile.name }}</h2>
+            <h3>{{ profile.location_description }}</h3>
+        </hgroup>
+    </header>
+
+    {% if not is_owner %}
+    <div class="clearfix">
+        <button class="show_message_form">Contact me</button>
+    </div>
+    {% endif %}
+
+    {% if profile.available_for > 0 %}
+    <h3 class="available clearfix">I&rsquo;m available for {{ profile.get_available_for_display|lower }}!</h3>
+    {% endif %}
+
+    {% if profile.bio %}
+    <section id="about_me" class="profile__info clearfix">
+        <h4>About me</h4>
+        <article>
+            {{ profile.bio|markdown }}
+        </article>
+    </section>
+    {% endif %}
+
+    {% if profile.skills.all|length %}
+    <section id="skills" class="profile__info clearfix">
+        <h4>Skills</h4>
+        <ul id="profile_tags" class="clearfix inline-list">
+            {% for skill in profile.skills.all %}
+            <li>{{ skill }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+
+    {% if profile.portfoliosite_set.all %}
+    <section id="my_sites" class="profile__info clearfix">
+        <h4>Portfolio</h4>
+
+        <section class="clearfix">
+            {% for item in profile.portfoliosite_set.all %}
+            <article class="site clearfix">
+                <div class="clearfix">
+                    <h4><a href="{{ item.url }}">{{ item.title }}</a></h4>
+                    <section class="description" style="display:none;">
+                        {{ item.description|markdown }}
+                    </section>
+                </div>
+                <span class="controls one column omega"></span>
+            </article>
+            {% endfor %}
+        </section>
+    </section>
+    {% endif %}
+
+    <section id="social" class="profile__info clearfix">
+        <h4>Social</h4>
+        <ul class="clearfix inline-list">
+            <li><nofollow><a href="http://twitter.com/{{ profile.user.twitterinfo.name }}" target="_blank">Twitter</a></nofollow></li>
+            {% if services.linkedin %}
+            <li><nofollow><a href="http://linkedin.com/in/{{ services.linkedin.value }}" target="_blank">Linkedin</a></nofollow></li>
+            {% endif %}
+            {% if services.facebook %}
+            <li><nofollow><a href="http://www.facebook.com/{{ services.facebook.value }}" target="_blank">Facebook</a></nofollow></li>
+            {% endif %}
+        </ul>
+    </section>
+
+    {% if not is_owner %}
+    <section id="message" style="display:none;" class="clearfix">
+        <h3>Send me a message!</h3>
+        <form action="/messages/compose/{{ profile.user.username }}/" method="POST">{% csrf_token %}
+        {% if not user.is_authenticated %}
+            <p id="name_fieldset">
+                <label for="id_name"><span class="req">*</span>Name</label>
+                <input type="text" name="name" required id="id_name" class="text">
+            </p>
+            <p id="email_fieldset">
+                <label for="id_email"><span class="req">*</span>Email</label>
+                <input type="email" name="email" required id="id_email" class="text">
+            </p>
+        {% else %}
+            <input type="hidden" name="name" value="{{ user.username }}" id="id_name">
+            <input type="hidden" name="email" value="{{ user.email }}" id="id_email">
+        {% endif %}
+            <p id="message_fieldset">
+                <label for="id_message"><span class="req">*</span>Message</label>
+                <textarea name="message" required rows="4" id="id_message" cols="40"></textarea>
+            </p>
+
+            <input type="hidden" name="user_id" value="{{ profile.user.id }}" required id="id_user_id">
+
+            <div style="display: none;">
+                <label>leave this field blank to prove your humanity
+                    <input type="text" name="winnie_the_pooh" value="" />
+                </label>
+            </div>
+
+            <button class="positive span-2 primary"><span class="icon check"></span>Send</button>
+            <button class="span-2 negative"><span class="icon cross"></span>Cancel</button>
+            <input type="submit" style="display:none">
+        </form>
+    </section>
+    {% endif %}
+</section>
+
+<section class="map">
+    <section id="map_holder">
+        <div id="geo_map">
+            <div id="geo_wrapper"
+                data-latitude="{{ profile.latitude }}"
+                data-longitude="{{ profile.longitude }}"></div>
+        </div>
+    </section>
+
+    {% if closest_users|length %}
+    <h4>Closest users</h4>
+    <ol>
+        {% for p in closest_users %}
+        <li><a href="/p/{{ p.user.username }}/">
+            <img src="http://img.tweetimag.es/i/{{ p.user.twitterinfo.name }}_m">
+            {{ p.name }}:
+            {{ p.distance_in_miles }} miles away.
+        </a></li>
+        {% endfor %}
+    </ol>
+    {% endif %}
+</section>
+{% endblock %}

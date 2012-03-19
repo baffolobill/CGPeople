@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% load markup %}
+
+{% block title %}{{ profile.name }} | CG People{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    //yepnope('{{ STATIC_URL }}js/message_counter.js');
+    var COORDS = '{"location": {"coords": {"latitude": {{ profile.latitude }}, "longitude": {{ profile.longitude }} }}}';
+</script>
+<script src="{{ STATIC_URL }}js/profile_loader.js"></script>
+{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.tagsinput.css">
+<link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.autocomplete.css">
+{% endblock %}
+
+
+{% block body %}
+<header class="sixteen columns alpha omega clearfix">
+    <h1 id="page_title" class="eight columns alpha">Edit Your Profile</h1>
+
+    {% if profile.show_tweet %}
+    <aside class="clearfix tweet_spread" id="tweet">
+        <h3>Spread the word!</h3>
+        <a href="http://twitter.com/share" class="twitter-share-button"
+            data-text="I just registered on CGPeople.me! #cgpeople.me"
+            data-url="http://cgpeople.me{{ profile.get_absolute_url }}"
+            data-count="none"
+            data-via="cgpeopleme" id="tweet_it">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+        <a id="hide_tweet" href="/profile/hide_tweet/">hide</a>
+    </aside>
+    {% endif %}
+</header>
+
+<div id="profile_info"  class="profile clearfix">
+    <form action="/profile/save_profile/" method="POST" id="profile_form">
+        {% csrf_token %}
+        <section>
+            <h2>Your details</h2>
+
+            <p id="name_fieldset">
+                <label for="id_name"><span class="req">*</span>Name</label>
+
+                {{ profile_form.name }}
+            </p>
+            <p id="bio_fieldset">
+                <label for="id_bio">Bio<span class="help">Tell us a bit about you</span></label>
+
+                {{ profile_form.bio }}
+            </p>
+
+            <p id="email_fieldset">
+                <label for="id_email">Email<span class="help">We&#39;ll need your email address to send you notices about messages.</span></label>
+
+                {{ profile_form.email }}
+            </p>
+
+            {% comment %}
+            <p id="location_fieldset">
+                <label for="id_location">Location<span class="help">What you&#39;d like others to see your location as.</span></label>
+
+                {{ profile_form.location_description }}
+            </p>
+            {% endcomment %}
+
+            <p id="skills_fieldset">
+                <label for="id_skills">Skills<span class="help">to pay the bills</span></label>
+
+                {{ profile_form.skills }}
+            </p>
+
+            <p id="available_for_fieldset">
+                <label for="id_available_for"><span class="req">*</span>Available for</label>
+
+                {{ profile_form.available_for }}
+            </p>
+
+            <p id="facebook_username_fieldset">
+                <label for="id_service_facebook">Facebook username</label>
+                {{ profile_form.service_facebook }}
+            </p>
+
+            <p id="linkedin_username_fieldset">
+                <label for="id_service_linkedin">Linkedin username</label>
+
+                {{ profile_form.service_linkedin }}
+            </p>
+        </section>
+        <p class="prepend-top">
+            <button class="positive primary"><span class="check icon"></span>Save</button>
+            <input type="submit" style="display:none">
+        </p>
+    </form>
+</div>
+
+<div id="map_holder" class="map clearfix">
+    <h3>Your location</h3>
+    <div id="geo_map">
+        <div id="geo_wrapper"></div>
+    </div>
+    <div>
+        <p id="live_geolocation"></p>
+        <form action="/profile/save_position/" method="POST" class="clearfix">
+            {% csrf_token %}
+            <input type="hidden" name="latitude" value="{{ profile.latitude }}" id="id_latitude">
+            <input type="hidden" name="longitude" value="{{ profile.longitude }}" id="id_longitude">
+
+            <p class="eight columns alpha omega clearfix">
+                <button class="two colums alpha" id="id_update_location"><span class="loop icon"></span>Update/Save</button>
+                <button class="right" id="location_search"><span class="icon magnifier"></span>Search</button>
+            </p>
+        </form>
+    </div>
+
+    <section>
+        <h3>Sites with your portfolio</h3>
+
+        {% for site in profile.portfoliosite_set.all %}
+        <article class="portfolio-site prepend-top" data-id="{{ site.id }}" data-url="{{ site.url }}" data-name="{{ site.title }}" data-description="{{ site.description }}">
+            <h4><a href="{{ site.url }}" target="_blank">{{ site.title }}</a></h4>
+            <section>{{ site.description|markdown }}</section>
+            <nav class="controls eight columns alpha omega clearfix">
+                <div class="five columns alpha">
+                    <button class="img edit edit_site" href="#">Edit</button>
+                </div>
+                <div class="three columns omega">
+                    <button data-url="{% url profile-site-delete site.id %}" class="delete_site right">Delete</button>
+                </div>
+            </nav>
+        </article>
+        {% endfor %}
+
+        <p><button class="" id="add_site" data-url="/profile/site/add/">
+            <span class="plus icon"></span>Add a site</button></p>
+    </section>
+</div>
+
+<div class="sixteen columns">
+    <a href="/profile/delete/" class="right" title="Confirm on the next page">Delete my account!</a>
+</div>
+
+<div id="add_site_template" style="display:none">
+    <form action="/profile/site/add/" method="POST" class="add_site_form clearfix">
+        {% csrf_token %}
+
+        <p id="site_domain_fieldset">
+            <label for="id_site_url">
+                <span class="req">*</span>Site domain<span class="help">Include http(s)://</span></label>
+
+            <input type="url" name="site_url" required maxlength="255" id="id_site_url" class="text">
+        </p>
+
+        <p id="site_name_fieldset">
+            <label for="id_site_title"><span class="req">*</span>Site name</label>
+
+            <input type="text" name="site_title" required maxlength="255" id="id_site_title" class="text">
+        </p>
+
+        <p id="site_description_fieldset">
+            <label for="id_site_description">Site description<span class="help">Describe your involvement with the project</span></label>
+
+            <textarea name="site_description" rows="4" id="id_site_description" cols="40"></textarea>
+        </p>
+
+        <p class="eight columns alpha omega clearfix">
+            <button class="two columns alpha"><span class="check icon"></span>Save</button>
+            <button class="two columns negative">Cancel</button>
+            <input type="submit" style="display:none">
+        </p>
+    </form>
+</div>
+
+<div id="edit_site_template" style="display:none">
+    <form action="/profile/site/edit/" method="POST" class="edit_site_form clearfix">
+        {% csrf_token %}
+        <p id="site_domain_fieldset">
+            <label for="id_site_url">
+                <span class="req">*</span>Site domain<span class="help">Include http(s)://</span></label>
+            <input type="url" name="site_url" required maxlength="255" id="id_site_url" class="text">
+        </p>
+        <p id="site_name_fieldset">
+            <label for="id_site_title">
+                <span class="req">*</span>Site name</label>
+
+            <input type="text" name="site_title" required maxlength="255" id="id_site_title" class="text">
+        </p>
+
+        <p id="site_description_fieldset">
+            <label for="id_site_description">Site description
+                <span class="help">Describe your involvement with the project</span></label>
+            <textarea name="site_description" rows="4" id="id_site_description" cols="40"></textarea>
+        </p>
+
+        <p class="eight columns alpha omega clearfix">
+            <input type="hidden" name="id" id="id_site_id">
+            <button class="two columns alpha primary">Save</button>
+            <button class="two columns omega negative">Cancel</button>
+            <input type="submit" style="display:none">
+        </p>
+    </form>
+</div>
+
+<div id="geocode_search_template" style="display:none;">
+    <form action="/geocode/" method="POST" class="location_search_form right six columns omega">
+        {% csrf_token %}
+        <p id="search_fieldset">
+            <label for="id_search"><span class="req">*</span>Search</label>
+            <input type="text" name="search" required placeholder="Enter a place name" id="id_search" class="search">
+        </p>
+
+        <input type="submit" style="display:none">
+        <button class="one columns">Find</button>
+        <button class="one columns omega negative">Close</button>
+    </form>
+</div>
+{% endblock %}

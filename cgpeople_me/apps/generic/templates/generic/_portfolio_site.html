@@ -1,0 +1,14 @@
+{% load markup %}
+
+<article class="portfolio-site prepend-top" data-id="{{ site.id }}" data-url="{{ site.url }}" data-name="{{ site.title }}" data-description="{{ site.description }}">
+    <h4><a href="{{ site.url }}" target="_blank">{{ site.title }}</a></h4>
+    <section>{{ site.description|markdown }}</section>
+    <nav class="controls eight columns alpha omega clearfix">
+        <div class="five columns alpha">
+            <button class="img edit edit_site" href="#">Edit</button>
+        </div>
+        <div class="three columns omega">
+            <button data-url="{% url profile-site-delete site.id %}" class="delete_site right">Delete</button>
+        </div>
+    </nav>
+</article>

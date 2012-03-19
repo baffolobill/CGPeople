@@ -1,0 +1,49 @@
+{% load escape_braces %}
+
+{% verbatim %}
+<script type="text/html" id="new_member_template">
+{{#if objects.length}}
+    {{#objects}}
+        <a href="{{url}}" title="{{user.name}}"><img src="http://img.tweetimag.es/i/{{user.username}}_n" width="48" height="48"></a>
+    {{/objects}}
+{{/if}}
+</script>
+<script type="text/x-handlebars-template" id="search_template">
+<h3>Results</h3>
+{{#if objects.length}}
+    {{#objects}}
+        <article class="search_result{{#if available_for}} hire{{/if}}">
+            {{#if available_for}}
+            <span class="corner_banner">
+                <em>Hire me!</em>
+            </span>
+            {{/if}}
+            <header class="clearfix">
+                <span class="avatar">
+                    <img src="http://img.tweetimag.es/i/{{user.username}}_b" width="73" height="73">
+                </span>
+                <hgroup class="header clearfix">
+                    {{#if user.name.length}}
+                    <h4><a href="{{url}}">{{user.name}}</a></h4>
+                    {{else}}
+                    <h4><a href="{{url}}">{{user.username}}</a></h4>
+                    {{/if}}
+                    {{#if location}}
+                    <h5>{{location}}</h5>
+                    {{/if}}
+                </hgroup>
+                {{#if skills.length}}
+                <ul class="skills inline-list clearfix">
+                    {{#skills}}
+                    <li>{{name}}</li>
+                    {{/skills}}
+                </ul>
+                {{/if}}
+            </header>
+        </article>
+    {{/objects}}
+{{else}}
+    <p>No results found. Try again!</p>
+{{/if}}
+</script>
+{% endverbatim %}

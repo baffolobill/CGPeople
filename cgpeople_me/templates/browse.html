@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load escape_braces %}
+
+{% block title %}Browse | CG People{% endblock %}
+
+{% block scripts %}<script src="{{ STATIC_URL }}js/browse_loader.js"></script>{% endblock %}
+
+{% block body %}
+<h2>Browsing</h2>
+<div id="members" class="sixteen columns alpha omega clearfix"></div>
+<div id="controls" class="four columns alpha omega clearfix">
+    <button class="two columns alpha previous" style="display:none">Previous</button>
+    <button class="two columns alpha next" style="display:none">Next</button>
+</div>
+
+{% verbatim %}
+<script type="template/x-handlebars-template" id="member_profile_template">
+    {{#objects}}
+    <article class="member{{#if available_for}} hire{{/if}}">
+        <div class="member_wrap clearfix">
+            {{#if available_for}}
+            <span class="corner_banner">
+                <em>Hire me!</em>
+            </span>
+            {{/if}}
+            <header class="clearfix">
+                <span class="avatar">
+                    <img src="http://img.tweetimag.es/i/{{user.username}}_b" width="73" height="73">
+                </span>
+                <hgroup class="columns">
+                    <h3><a href="/p/{{user.username}}">{{truncateString user.name "24"}}</a></h3>
+                    {{#if location}}
+                    <h4>{{truncateString location "24"}}</h4>
+                    {{/if}}
+                </hgroup>
+            </header>
+        </div>
+    </article>
+    {{/objects}}
+</script>
+{% endverbatim %}
+{% endblock %}

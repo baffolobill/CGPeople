@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile.name }} | CG People{% endblock %}
+
+
+{% block body %}
+<h1 id="page_title">Delete your account</h1>
+<div class="clearfix" style="float:left;clear:both;">
+    <h2>We hate to see you go!</h2>
+    <p>If it's something we did, please, <a href="mailto:devs@cgpeople.me">let us know</a>, especially if it's something we can fix.</p>
+
+    <p>But, if you're <em>really</em> sure, go ahead and click this button and we'll remove your account from our system:</p>
+    <p class="prepend-top"><a href="/profile/delete/really/" class="button big negative">Yes, I'm <em>really</em> sure</a></p>
+</div>
+{% endblock %}

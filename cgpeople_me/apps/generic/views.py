@@ -1,0 +1,490 @@
+import urllib, urllib2
+
+from django import http
+from django.db.models import Q
+from django.conf import settings
+from django.views.generic import TemplateView
+from django.views.generic.base import TemplateResponseMixin, View
+from django.views.generic.list import MultipleObjectMixin
+from django.utils import simplejson
+from django.shortcuts import get_object_or_404
+from django.utils.encoding import smart_str
+from django.template.loader import render_to_string
+from django.core.paginator import InvalidPage
+from django.core.urlresolvers import reverse
+from django.contrib.gis.measure import D
+from django.contrib.gis.geos import Point, fromstr
+
+from cities.models import City
+
+from machinetags.utils import tagdict
+from machinetags.models import MachineTaggedItem
+from . import app_settings, models, forms
+
+
+class BaseMixin(object):
+
+    def get_context_data(self):
+        return {}
+
+class JSONResponseMixin(BaseMixin):
+
+    def render_to_response(self, context):
+        "Returns a JSON response containing 'context' as payload"
+        return self.get_json_response(self.convert_context_to_json(context))
+
+    def get_json_response(self, content, **httpresponse_kwargs):
+        "Construct an `HttpResponse` object."
+        return http.HttpResponse(content,
+                                 content_type='application/json',
+                                 **httpresponse_kwargs)
+
+    def convert_context_to_json(self, context):
+        "Convert the context dictionary into a JSON object"
+        # Note: This is *EXTREMELY* naive; in reality, you'll need
+        # to do much more complex handling to ensure that arbitrary
+        # objects -- such as Django model instances or querysets
+        # -- can be serialized as JSON.
+
+        return simplejson.dumps(context)
+
+
+
+class BaseView(JSONResponseMixin, TemplateResponseMixin, View):
+
+    template_name = ''
+
+    def render_to_response(self, context):
+        # Look for a 'format=json' GET argument
+        if self.request.is_ajax():
+            return JSONResponseMixin.render_to_response(self, context)
+        else:
+            return TemplateResponseMixin.render_to_response(self, context)
+
+
+class ObjectListMixin(MultipleObjectMixin, BaseMixin, View):
+
+    paginate_by = getattr(settings, 'PAGINATION__PER_PAGE', 20)
+
+    paginate_url = None
+
+    def paginate_queryset(self, queryset, page_size):
+        """
+        Paginate the queryset, if needed.
+        """
+        paginator = self.get_paginator(queryset, page_size, allow_empty_first_page=self.get_allow_empty())
+        page = self.kwargs.get('page') or self.request.GET.get('page') or self.request.POST.get('page') or 1
+        try:
+            page_number = int(page)
+        except ValueError:
+            if page == 'last':
+                page_number = paginator.num_pages
+            else:
+                raise http.Http404(_(u"Page is not 'last', nor can it be converted to an int."))
+        try:
+            page = paginator.page(page_number)
+            return (paginator, page, page.object_list, page.has_other_pages())
+        except InvalidPage:
+            raise http.Http404(_(u'Invalid page (%(page_number)s)') % {
+                                'page_number': page_number
+            })
+
+    def get_next_page_url(self, paginator, page):
+        if self.paginate_url and page.has_next():
+            paginate_url = reverse(self.paginate_url)
+            return '%s?page=%s' % (paginate_url, page.next_page_number())
+
+        return None
+
+    def get_prev_page_url(self, paginator, page):
+        if self.paginate_url and page.has_previous():
+            paginate_url = reverse(self.paginate_url)
+            return '%s?page=%s' % (paginate_url, page.previous_page_number())
+
+        return None
+
+    def get_object_list(self, queryset):
+        items = []
+        for item in queryset:
+            items.append({
+                "available_for": item.available_for,
+                "lat": item.latitude, "long": item.longitude,
+                "location": item.location_description,
+                "url": item.get_absolute_url(),
+                "skills": [{'name': t.name} for t in item.skills.all()],
+                "user": {"name": item.name,
+                         "username": item.user.username},
+                })
+
+        return items
+
+    def get_context_data(self, **kwargs):
+        """
+        Get the context for this view.
+        """
+        queryset = kwargs.pop('object_list') if 'object_list' in kwargs else self.get_queryset()
+        page_size = self.get_paginate_by(queryset)
+
+        paginator, page, queryset, is_paginated = self.paginate_queryset(queryset, page_size)
+        context = {'meta': {'next': self.get_next_page_url(paginator, page),
+                            'previous': self.get_prev_page_url(paginator, page),
+                            'count': paginator.count, 'num_pages': paginator.num_pages,
+                            'limit': page_size},
+                    'objects': self.get_object_list(queryset)}
+
+        return context
+
+
+class JSONResponse(http.HttpResponse):
+    def __init__(self, data, **kwargs):
+        defaults = {
+          'content_type': 'application/json',
+        }
+        defaults.update(kwargs)
+        super(JSONResponse, self).__init__(simplejson.dumps(data), defaults)
+
+
+class ObjectListView(ObjectListMixin, JSONResponseMixin):
+
+    paginate_url = 'api-profile'
+
+    queryset = models.Profile.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data()
+
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+
+class SearchView(ObjectListMixin, JSONResponseMixin):
+
+    paginate_url = 'search'
+
+    queryset = models.Profile.objects.all()
+
+    paginate_by = 500
+
+    def post(self, request, *args, **kwargs):
+        qs = self.search()
+        context = self.get_context_data(object_list=qs)
+
+        return self.render_to_response(context)
+
+    def search(self):
+        loc = unicode(self.request.POST.get('location', '')).strip()
+        try:
+            distance = int(self.request.POST.get('distance', 0))
+        except:
+            distance = 0
+        skills = unicode(self.request.POST.get('skills', '')).strip()
+
+        qs = self.queryset
+        if len(skills):
+            qs = qs.filter(skills__name__in=[s.strip() for s in skills.split(',')])
+
+        # location might be city, region or country
+        coords = get_lat_lng(loc)
+        if coords:
+            qry = None
+            distance_query = []
+            for crd in coords:
+                if crd['type'] == 'locality':
+                    fld = Q(country__code=crd['country'])&Q(city__name=crd['name'])
+                elif crd['type'] == 'country':
+                    fld = Q(country__code=crd['country'])
+                else:
+                    fld = Q(country__code=crd['country'])&Q(city__region__name__istartswith=crd['name'])
+                    fld |= Q(country__code=crd['country'])&Q(city__region__region_parent__name__istartswith=crd['name'])
+
+                if distance > 0:
+                    distance_query.append(Point(crd['lng'], crd['lat']))
+
+                    #fld &= Q(coords__distance_lte=(pnt, D(m=distance)))
+
+                if not qry:
+                    qry = fld
+                else:
+                    qry |= fld
+
+            qs1 = qs.filter(qry)
+
+            if len(distance_query):
+                qs2 = qs.none()
+                for pnt in distance_query:
+                    qs2 |= qs.extra(
+                        #where=['ST_DWithin(coords, ST_PointFromText(%s, 4326), %s)'],
+                        #where=['ST_Distance(coords, ST_PointFromText(%s, 4326)) <= %s'],
+                        where=["round(CAST(ST_Distance_Sphere(ST_Centroid(coords), ST_PointFromText(%s, 4326)) As numeric),2) <= %s"],
+                        params=[pnt.wkt, D(mi=distance).m]
+                    )
+
+                qs = qs1 | qs2
+            else:
+                qs = qs1
+
+
+
+        if not coords and not len(skills):
+            qs = self.queryset.none()
+
+        return qs
+
+
+def get_lat_lng(location):
+
+    # http://djangosnippets.org/snippets/293/
+    # http://code.google.com/p/gmaps-samples/source/browse/trunk/geocoder/python/SimpleParser.py?r=2476
+    # http://stackoverflow.com/questions/2846321/best-and-simple-way-to-handle-json-in-django
+    # http://djangosnippets.org/snippets/2399/
+
+    location = urllib.quote_plus(smart_str(location))
+    if not len(location):
+        return None
+
+    url = 'http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false' % location
+    response = urllib2.urlopen(url).read()
+    result = simplejson.loads(response)
+    if result['status'] == 'OK':
+        coords = []
+        for res in result['results']:
+            coords.append({'lat': float(res['geometry']['location']['lat']),
+                            'lng': float(res['geometry']['location']['lng']),
+                            'type': res['types'][0],
+                            'name': res['address_components'][0]['long_name'],
+                            'country': res['address_components'][-1]['short_name']})
+        return coords if len(coords) else None
+    else:
+        return None
+
+
+def geocode(request):
+    location = request.POST.get('search', '')
+    coord = get_lat_lng(location)
+    if coord:
+       return JSONResponse({'lat': coord[0]['lat'], 'lng': coord[0]['lng'], 'success': True})
+    else:
+        return JSONResponse({"success": False})
+
+def skill_list(request):
+    from taggit.models import Tag
+
+    q = unicode(request.GET.get('q', '')).strip()
+    if len(q) == 0:
+        return http.HttpResponse('')
+
+    was = []
+    items = []
+    for t in Tag.objects.distinct().filter(name__istartswith=q)[:10]:
+        tname = unicode(t.name).lower().strip()
+        if tname not in was:
+            was.append(tname)
+            items.append(tname)
+    return http.HttpResponse('\n'.join(items))
+
+
+class BrowseView(TemplateView):
+    template_name = "browse.html"
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(BrowseView, self).get_context_data(**kwargs)
+        return kwargs
+
+
+class ProfileView(TemplateView):
+    template_name = "view_profile.html"
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(ProfileView, self).get_context_data(**kwargs)
+
+        profile = get_object_or_404(models.Profile, user__username=kwargs['params']['username'])
+        profile.profile_views += 1
+        profile.save()
+
+        kwargs.update({"cloudmade_key": settings.CLOUDMADE_API_KEY})
+
+        mtags = tagdict(profile.machinetags.all())
+
+        # Set up convenient iterables for IM and services
+        ims = []
+        for key, value in mtags.get('im', {}).items():
+            shortname, name, icon = app_settings.IMPROVIDERS_DICT.get(key, ('', '', ''))
+            if not shortname:
+                continue  # Bad machinetag
+            ims.append({
+                'shortname': shortname,
+                'name': name,
+                'value': value,
+            })
+        ims.sort(lambda x, y: cmp(x['shortname'], y['shortname']))
+
+        services = {}
+        for key, value in mtags.get('services', {}).items():
+            shortname, name, icon = app_settings.SERVICES_DICT.get(key, ('', '', ''))
+            if not shortname:
+                continue  # Bad machinetag
+            #services.append({
+            #    'shortname': shortname,
+            #    'name': name,
+            #    'value': value,
+            #})
+            services[shortname] = {'name': name, 'value': value}
+        #services.sort(lambda x, y: cmp(x['shortname'], y['shortname']))
+
+        kwargs.update({
+            'is_owner': self.request.user.username == kwargs['params']['username'],
+            'profile': profile,
+            'mtags': mtags,
+            'ims': ims,
+            'services': services,
+            'user': self.request.user,
+            'closest_users': None, #profile.get_nearest(20),
+        })
+
+
+        return kwargs
+
+
+class EditProfileView(TemplateView):
+    template_name = "edit_profile.html"
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(EditProfileView, self).get_context_data(**kwargs)
+        kwargs.update({"cloudmade_key": settings.CLOUDMADE_API_KEY})
+
+        profile = get_object_or_404(models.Profile, user__username=self.request.user.username)
+        mtags = tagdict(profile.machinetags.all())
+
+        profile_form = forms.ProfileForm(initial={'name': profile.name, 'email': profile.user.email,
+            'bio': profile.bio, 'skills': ', '.join([s.name for s in profile.skills.all()]),
+            'location_description': profile.location_description,
+            'available_for': profile.available_for,
+            'service_facebook': mtags['services']['facebook'],
+            'service_linkedin': mtags['services']['linkedin']})
+        kwargs.update({'profile_form': profile_form})
+        kwargs.update({'profile': profile})
+
+        return kwargs
+
+
+class SaveProfileView(JSONResponseMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        profile = get_object_or_404(models.Profile, user__username=self.request.user.username)
+        form = forms.ProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return self.render_to_response({"success": "Your profile has been updated."})
+
+        form_err = [(k,v[0]) for k, v in form.errors.items()]
+        return self.render_to_response({'field_errors': dict(form_err)})
+
+
+class SavePositionView(JSONResponseMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        profile = get_object_or_404(models.Profile, user__username=self.request.user.username)
+        form = forms.LocationForm(request.POST, instance=profile)
+        if form.is_valid():
+            profile = form.save(commit=False)
+            pnt = Point(profile.longitude, profile.latitude)
+            profile.coords = pnt
+            closest_cities = City.objects.distance(profile.coords).order_by('distance')
+            if len(closest_cities):
+                profile.country = closest_cities[0].country
+                profile.city = closest_cities[0]
+                profile.location_description = '%s, %s' % (profile.city.name, profile.country.name)
+            profile.save()
+
+            return self.render_to_response({"success": "Your location has been successfully updated."})
+
+        return self.render_to_response({"errors": "Cannot update your position."})
+
+
+class DeleteProfileView(TemplateView):
+
+    template_name = 'delete_profile.html'
+
+
+class ReallyDeleteProfileView(JSONResponseMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        profile = get_object_or_404(models.Profile, user=self.request.user)
+        profile.portfoliosite_set.all().delete()
+        # logout
+        # delete records from twitinfo
+        # delete records from User table
+        # delete all messages
+        profile.delete()
+
+        # redirect to home page
+        return self.render_to_response({'success': True})
+
+
+class AddSiteView(JSONResponseMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        profile = get_object_or_404(models.Profile, user__username=self.request.user.username)
+        form = forms.PortfolioForm(request.POST)
+        if form.is_valid():
+            pflio = form.save(commit=False)
+            pflio.profile = profile
+            pflio.save()
+            html = render_to_string('generic/_portfolio_site.html', {'site': pflio})
+            return self.render_to_response({"message": "Portfolio site has been added.",
+                    "success": True, "response": html})
+
+        form_err = [(k,v[0]) for k, v in form.errors.items()]
+        return self.render_to_response({'field_errors': dict(form_err)})
+
+
+class EditSiteView(JSONResponseMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        profile = get_object_or_404(models.Profile, user__username=self.request.user.username)
+        portfolio_site = get_object_or_404(models.PortfolioSite, id=self.request.POST.get('id', -1))
+        form = forms.PortfolioForm(request.POST, instance=portfolio_site)
+        if form.is_valid():
+            pflio = form.save(commit=False)
+            pflio.profile = profile
+            pflio.save()
+            html = render_to_string('generic/_portfolio_site.html', {'site': pflio})
+            return self.render_to_response({"message": "Portfolio site updated.",
+                    "success": True, "response": html})
+
+        form_err = [(k,v[0]) for k, v in form.errors.items()]
+        return self.render_to_response({'field_errors': dict(form_err)})
+
+
+class DeleteSiteView(JSONResponseMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        profile = get_object_or_404(models.Profile, user__username=self.request.user.username)
+        item = get_object_or_404(models.PortfolioSite, id=kwargs['object_id'], profile=profile)
+        item.delete()
+
+        return self.render_to_response({'success': True})
+
+
+class HideTweetView(JSONResponseMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        profile = get_object_or_404(models.Profile, user=self.request.user)
+        profile.show_tweet = False
+        profile.save()
+        return self.render_to_response({'success': True})
+
+
+class IndexView(TemplateView):
+    template_name = "index.html"
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(IndexView, self).get_context_data(**kwargs)
+        kwargs.update({"cloudmade_key": settings.CLOUDMADE_API_KEY})
+        return kwargs
+
+
+class PrivacyView(TemplateView):
+    template_name = "privacy.html"

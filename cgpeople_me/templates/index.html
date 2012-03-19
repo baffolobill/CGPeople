@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block scripts %}<script src="{{ STATIC_URL }}js/index_loader.js"></script>{% endblock %}
+
+{% block body %}
+<div class="sixteen columns alpha omega">
+    <section id="map_holder">
+        <div id="geo_map">
+            <div id="geo_wrapper"></div>
+        </div>
+    </section>
+</div>
+
+
+
+<div class="search_form clearfix">
+    <section id="search_form">
+        <h3>Find someone</h3>
+        <form action="/search/" method="POST" class="eight columns alpha omega clearfix">
+            {% csrf_token %}
+            <p id="location_fieldset" class="eight columns alpha omega">
+                <label for="id_location">Location</label>
+                <input type="text" name="location" placeholder="Enter a location" id="id_location" class="search">
+            </p>
+
+            <div class="eight columns alpha omega clearfix">
+                <p id="distance_fieldset" class="three columns alpha">
+                    <label for="id_distance">Distance <span class="help">in miles</span></label>
+                    <input type="number" name="distance" max="6000" step="" id="id_distance" min="0">
+                </p>
+
+                <p id="skills_fieldset" class="five columns omega">
+                    <label for="id_skills">Skills <span class="help">Enter comma-separated skills</span></label>
+                    <input type="text" name="skills" placeholder="django, vim, redis" id="id_skills" class="skills">
+                </p>
+            </div>
+            <p class="clearfix"><button class="two columns alpha omega">Search</button></p>
+        </form>
+    </section>
+</div>
+<div class="result_form">
+    <section id="results"></section>
+</div>
+{% include 'search_results.html' %}
+{% endblock %}

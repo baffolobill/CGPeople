@@ -1,0 +1,65 @@
+{% extends "django_messages/base.html" %}
+{% load i18n %}
+{% load TT_music %}
+
+{% block content %}
+<h1>{% trans "Sent Messages" %}</h1>
+{% if message_list %}
+
+<div id="mail__bar" class="clearfix clear">
+    <div id="mail__bar__select" class="">
+        <span>{% trans 'Select' %}:&nbsp;</span> <a href="" onclick="return mail.toggleAll(this);">{% trans 'all' %}</a>, <a href="" onclick="return mail.selectRead(this);">{% trans 'read' %}</a>, <a href="" onclick="return mail.selectUnread(this);">{% trans 'new' %}</a>
+    </div>
+    <div id="mail__bar__actions">
+        <div class="button_blue fl_l">
+            <button onclick="mail.delete_selected(this);">{% trans 'Remove' %}</button>
+        </div>
+    </div>
+</div>
+
+<div class="mail__summary_wrap clearfix clear">
+    <div id="mail__summary_progress" class="fl_r"><img src="/images/upload.gif"></div>
+    <div id="mail__summary">
+        <span id="mail__summary__label">Вы отправили 171 сообщение</span>
+    </div>
+</div>
+
+<table class="messages">
+    <tbody>
+    {% for message in message_list %}
+    <tr class="" id="msg{{ message.id }}" onmousedown="return mail.go(this, '{% url messages_detail message.id %}');">
+        <td class="mail__check" onclick="return mail.check_toggle(this, '{{ message.id }}');" onmousedown="event.cancelBubble=true;"><div class=""></div></td>
+
+        <td class="mail__avatar">
+            <div>
+                <a href="{{ message.recipient.get_profile.get_absolute_url }}" onclick="return nav.go(this, event);" onmousedown="event.cancelBubble=true;"><img src="{{ message.recipient.get_profile.get_avatar.url }}" /></a>
+            </div>
+        </td>
+
+        <td class="mail__info">
+            <div class="mail__info__name clearfix clear"><a href="{{ message.recipient.get_profile.get_absolute_url }}" onclick="return nav.go(this, event);" onmousedown="event.cancelBubble=true;">{{ message.recipient.username }}</a></div>
+            <div class="mail__info__date clearfix clear">{{ message.sent_at|date:"j b Y H:i" }}</div>
+        </td>
+
+        <td class="mail__content">
+            <div class="mail__content__subject clearfix clear">
+                <a href="{{ message.get_absolute_url }}"
+                    onclick="return mail.open(this);">{{ message.subject|default:"..." }}</a>
+            </div>
+            <div class="mail__content__body clearfix clear">
+                <a href="{{ message.get_absolute_url }}"
+                    onclick="return mail.open(this);">{{ message.body|truncatechars:"100" }}</a>
+            </div>
+        </td>
+
+        <td class="mail__actions">
+            <a href="{% url messages_delete message.id %}?next={% url messages_outbox %}" onclick="return mail.delete(this, '{{ message.id }}');" onmousedown="event.cancelBubble=true;">{% trans "delete" %}</a>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>{% trans "No messages." %}</p>
+{% endif %}
+{% endblock %}

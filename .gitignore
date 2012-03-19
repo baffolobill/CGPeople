@@ -1,0 +1,6 @@
+.DS_Store
+._*
+*.pyc
+dp/settings/local.py
+dp/settings/secret.py
+static

@@ -1,0 +1,36 @@
+{% extends "django_messages/base.html" %}
+{% load i18n %}
+
+
+{% block content %}
+<table class="mail__detail">
+    <tr>
+        <td class="mail__avatar">
+            <div>
+                <a href="{{ message.sender.get_profile.get_absolute_url }}" onclick="return nav.go(this, event);" onmousedown="event.cancelBubble=true;"><img src="{{ message.sender.get_profile.get_avatar.url }}" /></a>
+            </div>
+        </td>
+        <td>
+            <h4>
+                <div id="mail__detail__actions">
+                    <a href="{% url messages_delete message.id %}" onclick="return mail.delete(this, '{{ message.id }}');">{% trans 'delete' %}</a><span class="divider">|</span><a href="" onclick="return mail.actShowMsg('report_spam', 420);">это спам</a>
+                </div>
+                <a href="{{ message.sender.get_profile.get_absolute_url }}" onclick="return nav.go(this, event);" onmousedown="event.cancelBubble=true;">{{ message.sender.username }}</a>
+            </h4>
+            <div class="mail__date">{{ message.sent_at|date:"j b Y H:i" }}</div>
+            <div class="mail__body">{{ message.body|linebreaksbr }}</div>
+        </td>
+    </tr>
+</table>
+
+{% ifequal message.recipient.pk user.pk %}
+<textarea id="" cols="100" rows="4"></textarea>
+<script type="text/javascript">
+jQuery(document).ready(function(){
+    jQuery('textarea').autoResize();
+});
+</script>
+<a href="{% url messages_reply message.id %}">{% trans "Reply" %}</a>
+{% endifequal %}
+
+{% endblock %}
