@@ -7,15 +7,17 @@ from django.views.generic import TemplateView
 from django.views.generic.base import TemplateResponseMixin, View
 from django.views.generic.list import MultipleObjectMixin
 from django.utils import simplejson
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.encoding import smart_str
 from django.template.loader import render_to_string
 from django.core.paginator import InvalidPage
 from django.core.urlresolvers import reverse
 from django.contrib.gis.measure import D
 from django.contrib.gis.geos import Point, fromstr
+from django.contrib.auth import logout
 
 from cities.models import City
+from django_messages.models import Message
 
 from machinetags.utils import tagdict
 from machinetags.models import MachineTaggedItem
@@ -408,25 +410,30 @@ class DeleteProfileView(TemplateView):
     template_name = 'delete_profile.html'
 
 
-class ReallyDeleteProfileView(JSONResponseMixin, View):
+class ReallyDeleteProfileView(View):
 
     def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated():
+            return redirect('index')
+
         profile = get_object_or_404(models.Profile, user=self.request.user)
         profile.portfoliosite_set.all().delete()
-        # logout
-        # delete records from twitinfo
-        # delete records from User table
-        # delete all messages
+        #profile.skills.all().delete()
+        profile.user.twitterinfo.delete()
+        Message.objects.filter(recipient=profile.user).delete()
+        Message.objects.filter(sender=profile.user).update(sender=None)
+        profile.user.delete()
         profile.delete()
+        logout(request)
 
         # redirect to home page
-        return self.render_to_response({'success': True})
+        return redirect('index')
 
 
 class AddSiteView(JSONResponseMixin, View):
 
     def post(self, request, *args, **kwargs):
-        profile = get_object_or_404(models.Profile, user__username=self.request.user.username)
+        profile = get_object_or_404(models.Profile, user=self.request.user)
         form = forms.PortfolioForm(request.POST)
         if form.is_valid():
             pflio = form.save(commit=False)
@@ -443,7 +450,7 @@ class AddSiteView(JSONResponseMixin, View):
 class EditSiteView(JSONResponseMixin, View):
 
     def post(self, request, *args, **kwargs):
-        profile = get_object_or_404(models.Profile, user__username=self.request.user.username)
+        profile = get_object_or_404(models.Profile, user=self.request.user)
         portfolio_site = get_object_or_404(models.PortfolioSite, id=self.request.POST.get('id', -1))
         form = forms.PortfolioForm(request.POST, instance=portfolio_site)
         if form.is_valid():
@@ -461,7 +468,7 @@ class EditSiteView(JSONResponseMixin, View):
 class DeleteSiteView(JSONResponseMixin, View):
 
     def get(self, request, *args, **kwargs):
-        profile = get_object_or_404(models.Profile, user__username=self.request.user.username)
+        profile = get_object_or_404(models.Profile, user=self.request.user)
         item = get_object_or_404(models.PortfolioSite, id=kwargs['object_id'], profile=profile)
         item.delete()
 
@@ -478,6 +485,7 @@ class HideTweetView(JSONResponseMixin, View):
 
 
 class IndexView(TemplateView):
+
     template_name = "index.html"
 
     def get_context_data(self, **kwargs):
@@ -487,4 +495,5 @@ class IndexView(TemplateView):
 
 
 class PrivacyView(TemplateView):
+
     template_name = "privacy.html"
