@@ -5,18 +5,22 @@ function show_members(url) {
     var members = $.get(url, {
         format: 'json'
     }, function(data) {
-        var source = $('#member_profile_template').html(),
-            template = Handlebars.compile(source);
-        $('#members').html(template(data));
-        if (data.meta.next != null) {
-            create_button('next', data.meta.next);
+        if (!data.objects.length){
+            $('#members').html('<p>No members yet.</p>');
         } else {
-            hide_button('.next');
-        }
-        if (data.meta.previous != null) {
-            create_button('previous', data.meta.previous);
-        } else {
-            hide_button('.previous');
+            var source = $('#member_profile_template').html(),
+                template = Handlebars.compile(source);
+            $('#members').html(template(data));
+            if (data.meta.next != null) {
+                create_button('next', data.meta.next);
+            } else {
+                hide_button('.next');
+            }
+            if (data.meta.previous != null) {
+                create_button('previous', data.meta.previous);
+            } else {
+                hide_button('.previous');
+            }
         }
     });
 }

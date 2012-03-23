@@ -3,7 +3,7 @@ var appMessage;
 function show_map() {
     var map = new L.Map('geo_wrapper'),
         cloudmadeURL = 'http://{s}.tile.cloudmade.com/7480e4f340004f308c3dbe4db0806773/997/256/{z}/{x}/{y}.png',
-        cloudmadeAttrib = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+        cloudmadeAttrib = 'Map data &copy; 2012 OpenStreetMap contributors, Imagery &copy; 2012 CloudMade',
         cloudmade = new L.TileLayer(cloudmadeURL, {maxZoom: 18, attribution: cloudmadeAttrib}),
         existing_lat = parseFloat($('#id_latitude').val()),
         existing_long = parseFloat($('#id_longitude').val()),
@@ -358,7 +358,7 @@ $(function() {
                     location_description: $form.find('#id_location_description').val(),
                     available_for: $form.find('#id_available_for').val(),
                     service_facebook: $form.find('#id_service_facebook').val(),
-                    service_linkedin: $form.find('#id_linkedin_username').val()
+                    service_linkedin: $form.find('#id_service_linkedin').val()
                 },
                 type: 'POST',
                 dataType: 'json'
