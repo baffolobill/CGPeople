@@ -183,9 +183,18 @@ class SearchView(ObjectListMixin, JSONResponseMixin):
             distance = 0
         skills = unicode(self.request.POST.get('skills', '')).strip()
 
+        try:
+            available_for = int(self.request.POST.get('available_for', 0))
+        except:
+            available_for = 0
+
         qs = self.queryset
         if len(skills):
             qs = qs.filter(skills__name__in=[s.strip() for s in skills.split(',')])
+
+        # filter by available for field
+        if available_for > 0:
+            qs = qs.filter(available_for=available_for)
 
         # location might be city, region or country
         coords = get_lat_lng(loc)
