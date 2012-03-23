@@ -361,7 +361,6 @@ class EditProfileView(TemplateView):
 
         profile_form = forms.ProfileForm(initial={'name': profile.name, 'email': profile.user.email,
             'bio': profile.bio, 'skills': ', '.join([s.name for s in profile.skills.all()]),
-            'location_description': profile.location_description,
             'available_for': profile.available_for,
             'service_facebook': mtags['services']['facebook'],
             'service_linkedin': mtags['services']['linkedin']})
@@ -374,7 +373,7 @@ class EditProfileView(TemplateView):
 class SaveProfileView(JSONResponseMixin, View):
 
     def post(self, request, *args, **kwargs):
-        profile = get_object_or_404(models.Profile, user__username=self.request.user.username)
+        profile = get_object_or_404(models.Profile, user=self.request.user)
         form = forms.ProfileForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()

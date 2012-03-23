@@ -46,8 +46,8 @@ class ProfileForm(forms.ModelForm):
             help_text="We'll need your email address to send you notices about messages.")
     bio = forms.CharField(widget=forms.Textarea(attrs={'cols': 40, 'rows': 10}),
             required=False, help_text='Tell us a bit about you.')
-    location_description = forms.CharField(max_length=50, required=False,
-            help_text="What you'd like others to see your location as.")
+    #location_description = forms.CharField(max_length=50, required=False,
+    #        help_text="What you'd like others to see your location as.")
 
     available_for = forms.ChoiceField(
         choices = (
@@ -84,7 +84,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ('name', 'email', 'bio', 'location_description', 'skills', 'available_for')
+        fields = ('name', 'email', 'bio', 'skills', 'available_for')
 
 
 class LocationForm(forms.ModelForm):
