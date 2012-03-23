@@ -59,7 +59,6 @@ class ProfileForm(forms.ModelForm):
 
     skills = TagField(required=False, help_text="to pay the bills")
 
-
     def clean_email(self):
         email = self.cleaned_data['email']
         user = User.objects.filter(email=email).exclude(id=self.instance.user.pk)
