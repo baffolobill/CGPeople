@@ -4,7 +4,9 @@ unipath==0.2.1
 psycopg2
 oauth2
 django-taggit
-django-citites
+django-cities
+markdown2
+django-markdown-deux
 
 #django-crispy-forms==1.1.1
 #django-floppyforms==0.4.7

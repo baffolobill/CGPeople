@@ -6,7 +6,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ("Chris Jones", "baffolobill@yandex.ru"),
+    ("Lex", "baffolobill@yandex.ru"),
 )
 
 MANAGERS = ADMINS
@@ -47,7 +47,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = Path(PROJECT_ROOT.ancestor(1), "static")
+STATIC_ROOT = Path(PROJECT_ROOT.ancestor(1), "static0")
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -60,7 +60,7 @@ ADMIN_MEDIA_PREFIX = u"%s%s" % (STATIC_URL, "admin/")
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    Path(PROJECT_ROOT, "staticfiles"),
+    Path(PROJECT_ROOT, "static"),
 )
 
 # List of finder classes that know how to find static files in
@@ -115,7 +115,7 @@ DJANGO_APPS = (
     "django.contrib.sessions",
     "django.contrib.sites",
     "django.contrib.staticfiles",
-    "django.contrib.markup",
+    #"django.contrib.markup",
 )
 
 THIRD_PARTY_APPS = (
@@ -128,7 +128,7 @@ THIRD_PARTY_APPS = (
     "cities",
     "taggit",
     "django_messages",
-    #"django_markdown",
+    "markdown_deux",
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS

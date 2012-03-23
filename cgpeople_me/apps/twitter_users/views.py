@@ -22,7 +22,8 @@ def twitter_login(request, redirect_field_name='next'):
     # construct the callback URL
     try:
         protocol      = 'https' if request.is_secure() else 'http'
-        host          = request.get_host()
+#!!!!!!!
+        host          = settings.HOST  # request.get_host()
         path          = reverse('twitter-callback')
         callback_url  = protocol + '://' + host + path
     except NoReverseMatch:
