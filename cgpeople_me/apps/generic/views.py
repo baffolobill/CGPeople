@@ -57,7 +57,7 @@ class ObjectListView(ObjectListMixin, JSONResponseMixin):
 
     queryset = models.Profile.objects.all()
 
-    paginate_by = 1
+    paginate_by = 500
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()

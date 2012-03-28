@@ -3,7 +3,7 @@
 
 {% block content %}
 <h1 id="page_title" class="clearfix clear">Messages</h1>
-{% if message_list %}
+{% if message_list|length %}
 <section id="unread_messages" class="messages clearfix clear">
     {% for msg in message_list %}
     <article class="message clearfix" id="msg_{{ msg.id }}">
@@ -57,6 +57,6 @@
     {% endfor %}
 </section>
 {% else %}
-    <p>No messages.</p>
+    <p class="clear">No messages.</p>
 {% endif %}
 {% endblock %}
