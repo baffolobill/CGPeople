@@ -278,7 +278,7 @@ form p { margin-bottom:0; }
 .ac_results {
   border-color:#ccc !important;
   clear:both !important;
-  left:16px !important;
+  /*left:16px !important;*/
 }
 .ac_over {
   background-color:#EA6258 !important;
@@ -291,6 +291,8 @@ form p { margin-bottom:0; }
 
 .location_search_form {
   margin-top:20px;
+  width: 320px;
+  text-align: right;
 }
 .location_search_form label {
   float:left;
@@ -304,7 +306,7 @@ form p { margin-bottom:0; }
   width:127px !important;
 }
 
-/* .location_search_form button { margin-top:-3px;} */
+.location_search_form button { margin-left: 6px; margin-top: -1px; }
 
 .show_message_form {
   margin-bottom:0;
