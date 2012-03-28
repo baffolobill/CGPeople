@@ -247,6 +247,18 @@ p {
 }
 h4 a { font-weight: inherit; }
 
+#user_info #twitter_account {
+    height: 16px;
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 16px;
+    padding: 4px 8px;
+    text-shadow: none;
+    background-color: #eee;
+    color: #3c3c3c;
+}
+
+
 
 /* #Buttons
 ================================================== */

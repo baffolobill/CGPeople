@@ -159,9 +159,9 @@ footer { clear:both; margin-top: 15px; width: 100%; }
     background: url('../img/icons/picons03.png') left bottom no-repeat;
     display:block;
     float:left;
-    height:18px;
+    height:16px;
     margin-right:4px;
-    width:18px;
+    width:16px;
   }
 
 #geo_map {
