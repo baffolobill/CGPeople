@@ -7,7 +7,7 @@
 {% block scripts %}
 <script type="text/javascript">
     //yepnope('{{ STATIC_URL }}js/message_counter.js');
-    var COORDS = '{"location": {"coords": {"latitude": {{ profile.latitude }}, "longitude": {{ profile.longitude }} }}}';
+    var COORDS = '{"location": {"coords": {"latitude": {{ profile.latitude|default:"0.0" }}, "longitude": {{ profile.longitude|default:"0.0" }} }}}';
 </script>
 <script src="{{ STATIC_URL }}js/profile_loader.js"></script>
 {% endblock %}

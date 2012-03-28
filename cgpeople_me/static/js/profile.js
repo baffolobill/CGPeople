@@ -19,7 +19,7 @@ function show_map() {
 
     map.addLayer(cloudmade);
 
-    if (existing_lat && existing_long && existing_lat != 0 && existing_long != 0) {
+    //if (existing_lat && existing_long && existing_lat != 0 && existing_long != 0) {
         var pos = new L.LatLng(existing_lat, existing_long),
             marker = new L.Marker(pos, {draggable: true, icon: icon});
         map.setView(pos, 13).addLayer(marker);
@@ -28,7 +28,8 @@ function show_map() {
             update_location_form(e.target._latlng.lat, e.target._latlng.lng);
             update_profile_location();
         });
-    } else {
+    //} else {
+    if (!(existing_lat && existing_long && existing_lat != 0 && existing_long != 0)){
         map.locateAndSetView();
     }
 

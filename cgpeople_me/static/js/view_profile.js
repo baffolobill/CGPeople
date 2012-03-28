@@ -35,7 +35,8 @@ $(function() {
         $("#message form input:not(:hidden):first").focus();
     });
 
-    $('#message .negative').live('click', function(e) {
+    $('#message .negative').live('click', function(e){
+        console.log('negative');
         e.preventDefault();
         reset_form('#message');
         $("#message").hide().prev('button').show();
@@ -60,7 +61,9 @@ $(function() {
             }).success(function(data) {
                 if (data.success) {
                     $.jGrowl(data.message, {header: 'Success', life: 5000});
-                    self.find('.negative').trigger('click');
+                    //self.find('.negative').trigger('click');
+                    reset_form('#message');
+                    $("#message").hide().prev('button').show();
                 } else {
                     if (data.field_errors || data.non_field_errors) {
                         self.find('.field_error').remove();
