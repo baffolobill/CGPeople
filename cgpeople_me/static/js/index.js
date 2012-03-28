@@ -56,7 +56,12 @@ $(function() {
 
     $("#search_form form").live('submit', function(e) {
         e.preventDefault();
+        /*var btn = $(this).find('button');
+        btn.attr('disabled', 'disabled');
+        btn.wrapInner('<span/>');
+        btn.append($('<img/>').attr('src', MEDIA_URL+'img/loaders/upload.gif'));*/
         var self = $(this),
+            btn = ajax_start($(this)),
             url = self.attr('action'),
             search = $.ajax({
                 url: url,
@@ -84,6 +89,11 @@ $(function() {
                     map.addLayer(marker);
                     layers.push(marker);
                 });
+            }).complete(function(){
+                /*btn.find('img').remove();
+                btn.find('span').contents().unwrap();
+                btn.removeAttr('disabled');*/
+                ajax_complete(btn);
             });
     });
 });

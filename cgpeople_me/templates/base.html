@@ -1,3 +1,5 @@
+{% load i18n %}
+
 <!doctype html>
 <!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
@@ -26,38 +28,52 @@
 
   {% block header %}
   <header id="masthead" class="masthead clearfix">
+    <div class="clearfix">
+      {% comment %}
       <h1 class="clearfix">
-          <a href="/"><span class="word1">CG</span> <span class="word2">P<span class="char2">e</span>ople</span></a>
+          <a href="{% url index %}"><span class="word1">CG</span> <span class="word2">P<span class="char2">e</span>ople</span></a>
       </h1>
+      {% endcomment %}
+      <a href="{% url index %}" class="logo"></a>
 
       <div class="clearfix" id="user_info">
-        <a href="/browse/">Browse members</a>
+        <a href="{% url browse %}" class="clearfix">{% trans 'Browse members' %}</a>
         {% if user.is_authenticated %}
-          <a href="/profile/" class="settings">Edit Profile</a>
-          <a href="/messages/" id="messages_button">Messages</a>
-          <a href="{% url twitter-logout %}">Logout</a>
+          <a href="{% url profile-edit %}" class="clearfix settings">{% trans 'Edit Profile' %}</a>
+          <a href="{% url messages_inbox %}" class="clearfix" id="messages_button">{% trans 'Messages' %}</a>
+          <a href="{% url twitter-logout %}" class="clearfix">{% trans 'Logout' %}</a>
 
-          <a href="/p/{{ user.username }}/"><img src="http://img.tweetimag.es/i/baffolobill_m" alt="baffolobilld"
-            class="right" width="24" height="24"></a>
+          <a href="{% url profile user.username %}" class="clearfix">
+            <img src="http://img.tweetimag.es/i/{{ user.twitterinfo.name }}_m"
+                alt="{{ user.twitterinfo.name }}"
+                class="right" width="24" height="24"></a>
         {% else %}
-          <a href="{% url twitter-login %}" class="button" id="twitter_account"><span></span>Your Account</a>
+          <a href="{% url twitter-login %}" class="button" id="twitter_account"><span></span>{% trans 'Your Account' %}</a>
         {% endif %}
       </div>
+    </div>
   </header>
   {% endblock %}
 
   <div role="main">
     {% block body %}{% endblock %}
-  </div>
+
   <footer>
-    <p class="">&copy; <a href="http://cgpeople.me">CGPeople.me</a>. All rights reserved. <a href="/privacy/">Privacy</a></p>
+    <p class="">&copy; <a href="http://cgpeople.me">CGPeople.me</a>. {% trans 'All rights reserved.' %} <a href="{% url privacy %}">{% trans 'Privacy' %}</a></p>
   </footer>
+
+  </div>
 
 
   <!-- JavaScript at the bottom for fast page loading -->
   <script>MEDIA_URL="{{ STATIC_URL }}";</script>
   <script src="{{ STATIC_URL }}js/libs/yepnope.1.0.1-min.js"></script>
   <script src="{{ STATIC_URL }}js/loader.js"></script>
+  {% if user.is_authenticated %}
+  <script type="text/javascript">
+    yepnope('{{ STATIC_URL }}js/message_counter.js');
+  </script>
+  {% endif %}
   {% block scripts %}{% endblock %}
   <!-- end scripts -->
 

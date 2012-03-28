@@ -115,7 +115,6 @@ DJANGO_APPS = (
     "django.contrib.sessions",
     "django.contrib.sites",
     "django.contrib.staticfiles",
-    #"django.contrib.markup",
 )
 
 THIRD_PARTY_APPS = (

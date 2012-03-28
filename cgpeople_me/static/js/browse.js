@@ -2,28 +2,30 @@ var url = '/api/v1/profile/';
 show_members(url);
 
 function show_members(url) {
-    var members = $.get(url, {
-        format: 'json'
-    }, function(data) {
-        if (data.meta.count == 0){
-            $('#members').html('<p>No members yet.</p>');
-        } else {
-            var source = $('#member_profile_template').html(),
-                template = Handlebars.compile(source);
-            $('#members').html(template(data));
-        }
+    var btn = ajax_start($(document)),
+        members = $.ajax({
+            url: url,
+            dataType: 'json'
+        }).success(function(data){
+            if (data.meta.count == 0){
+                $('#members').html('<p>No members yet.</p>');
+            } else {
+                var source = $('#member_profile_template').html(),
+                    template = Handlebars.compile(source);
+                $('#members').html(template(data));
+            }
 
-        if (data.meta.next != null) {
-            create_button('next', data.meta.next);
-        } else {
-            hide_button('.next');
-        }
-        if (data.meta.previous != null) {
-            create_button('previous', data.meta.previous);
-        } else {
-            hide_button('.previous');
-        }
-    });
+            if (data.meta.next != null) {
+                create_button('next', data.meta.next);
+            } else {
+                hide_button('.next');
+            }
+            if (data.meta.previous != null) {
+                create_button('previous', data.meta.previous);
+            } else {
+                hide_button('.previous');
+            }
+        }).complete(function(){ ajax_complete(btn); });
 }
 
 function create_button(text, url, attachment) {

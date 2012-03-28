@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block scripts %}<script src="{{ STATIC_URL }}js/index_loader.js"></script>{% endblock %}
 
@@ -12,41 +13,40 @@
 </div>
 
 
-
 <div class="search_form clearfix">
     <section id="search_form">
-        <h3>Find someone</h3>
-        <form action="/search/" method="POST" class="eight columns alpha omega clearfix">
+        <h3>{% trans 'Find someone' %}</h3>
+        <form action="{% url search %}" method="POST" class="eight columns alpha omega clearfix">
             {% csrf_token %}
             <p id="location_fieldset" class="eight columns alpha omega">
-                <label for="id_location">Location</label>
+                <label for="id_location">{% trans 'Location' %}</label>
                 <input type="text" name="location" placeholder="Enter a location" id="id_location" class="search">
             </p>
 
             <div class="eight columns alpha omega clearfix">
                 <p id="distance_fieldset" class="three columns alpha">
-                    <label for="id_distance">Distance <span class="help">in miles</span></label>
+                    <label for="id_distance">{% trans 'Distance' %} <span class="help">{% trans 'in miles' %}</span></label>
                     <input type="number" name="distance" max="6000" step="" id="id_distance" min="0">
                 </p>
 
                 <p id="skills_fieldset" class="five columns omega">
-                    <label for="id_skills">Skills <span class="help">Enter comma-separated skills</span></label>
+                    <label for="id_skills">{% trans 'Skills' %} <span class="help">{% trans 'Enter comma-separated skills' %}</span></label>
                     <input type="text" name="skills" placeholder="maya, blender, maxscript" id="id_skills" class="skills">
                 </p>
             </div>
 
             <div class="eight columns alpha omega clearfix">
                 <p id="available_for_fieldset" class="three columns alpha">
-                    <label for="id_available_for">Available for</label>
+                    <label for="id_available_for">{% trans 'Available for' %}</label>
 
                     <select name="available_for" id="id_available_for">
-                        <option value="0" selected="selected">Nothing</option>
-                        <option value="1">Freelance/Contract work</option>
-                        <option value="2">Full-time work</option>
+                        <option value="0" selected="selected">{% trans 'Nothing' %}</option>
+                        <option value="1">{% trans 'Freelance/Contract work' %}</option>
+                        <option value="2">{% trans 'Full-time work' %}</option>
                     </select>
                 </p>
             </div>
-            <p class="clearfix"><button class="two columns alpha omega">Search</button></p>
+            <p class="clearfix"><button>{% trans 'Search' %}</button></p>
         </form>
     </section>
 </div>

@@ -1,7 +1,50 @@
-.clearfix{*zoom:1}
-.clearfix:before,.clearfix:after{display:table;content:""}
-.clearfix:after{clear:both}
-html,body{background:#2b302f;color:#fff}
+/* Clearfix
+-------------------------------------------------------------*/
+* html .clearfix {
+    height: 1%; /* IE5-6 */
+}
+
+html[xmlns] .clearfix { /* O */
+    display: block;
+}
+
+.clearfix:after { /* FF, O, etc. */
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+/* Generic Styles
+-------------------------------------------------------------*/
+.clear, .divider {clear: both;}
+
+.no-display {display: none !important;}
+
+.nowrap,.nobr {white-space: nowrap !important;}
+
+.no-border {
+    border: 0 !important;
+}
+
+.no-padding {padding: 0 !important}
+.no-margin  {margin: 0 !important;}
+
+/*Alignment---*/
+.v-top      {vertical-align: top;}
+.v-middle   {vertical-align: middle;}
+.v-bottom   {vertical-align: bottom;}
+
+.a-left     {text-align: left;}
+.a-center   {text-align: center;}
+.a-right        {text-align: right;}
+
+.left       {float: left;}
+.right  {float: right;}
+
+.auto-width {width: auto;}
+
 div.leaflet-popup{color:#000}
 .navbar .brand{position:relative}
 .navbar .brand span.logo {
@@ -20,15 +63,15 @@ div.leaflet-popup{color:#000}
 /***/
 a, a:visited { color: #333; }
 
-.container {
+div[role=main] {
     position: relative;
     width: 960px;
-    margin: 0 auto;
+    margin: 15px auto 0;
     padding: 0;
 }
 .container h2 {
-    font-size: 35px;
-    line-height: 40px;
+    /*font-size: px;
+    line-height: 40px;*/
     margin: 0 0 10px;
     font-weight: normal;
 }
@@ -40,7 +83,7 @@ a, a:visited { color: #333; }
 #search_form #skills_fieldset { width: 280px; float: left; }
 #distance_fieldset { width: 160px; float: left; margin-right: 10px; }
 p {
-    margin: 0 0 20px;
+    margin: 0 0 10px;
 }
 .search_form p button {
     width: 100px;
@@ -136,6 +179,10 @@ p {
     padding-left: 83px;
     height: 80px;
 }
+.profile__name {
+    font-size: 26px;
+    line-height: 30px;
+}
 .profile .avatar {
     display: inline;
     position: absolute;
@@ -149,25 +196,29 @@ p {
 }
 .profile h4 {
     margin: 0 0 4px;
-    font-size: 21px;
-    line-height: 30px;
+    font-size: 18px;
+    line-height: 24px;
     font-weight: normal;
 }
-.profile__info {}
+.profile__info { margin-top: 10px; margin-bottom: 3px; }
 .profile__info > h4 {
-    width: 100px;
+    width: 90px;
     float: left;
-    margin: 0 10px 0 0;
+    margin: 0 5px 0 0;
 }
 .profile__info > article,
 .profile__info > ul,
 .profile__info > section {
-    width: 340px !important;
-    margin: 0 0 0 10px;
+    width: 360px !important;
+    margin: 0 0 0 5px;
     float: left;
 }
 .profile__info > ul {
     margin-bottom: 10px;
+}
+.profile__info .site h4 {
+    font-size: 16px;
+    line-height: 21px;
 }
 
 #message h3 {
@@ -176,11 +227,23 @@ p {
     margin-bottom: 8px;
 }
 
+
 .portfolio-site h4 {
-    font-size: 21px;
-    line-height: 30px;
+    font-size: 16px;
+    line-height: 21px;
     margin-bottom: 4px;
     font-weight: normal;
+    padding-top: 0px;
+    margin-top: 0px;
+}
+.portfolio-site .controls div:first-child {
+    width: 50%;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+.portfolio-site .controls div:last-child {
+    width: 160px;
 }
 h4 a { font-weight: inherit; }
 
@@ -242,11 +305,20 @@ h4 a { font-weight: inherit; }
     border-bottom: 1px solid #aaa;
     border-right: 1px solid #aaa; }
 
-    .button.full-width {
-        width: 100%;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        text-align: center; }
+  a.button:disabled,
+  a.button.disabled,
+  button:disabled,
+  button.disabled {
+    background: #eee;
+    border: 1px solid #888;
+    border-bottom: 1px solid #aaa;
+    border-right: 1px solid #aaa; }
+
+  a.button:disabled span,
+  a.button.disabled span,
+  button:disabled span,
+  button.disabled span { display: none; }
+
 
 
 /* #Forms

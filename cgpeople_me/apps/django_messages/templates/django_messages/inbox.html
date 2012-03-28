@@ -2,9 +2,9 @@
 {% load markdown_deux_tags %}
 
 {% block content %}
-<h1>Messages</h1>
+<h1 id="page_title" class="clearfix clear">Messages</h1>
 {% if message_list %}
-<section id="unread_messages" class="messages clearfix">
+<section id="unread_messages" class="messages clearfix clear">
     {% for msg in message_list %}
     <article class="message clearfix" id="msg_{{ msg.id }}">
         <header class="two columns omega">

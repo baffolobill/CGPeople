@@ -73,6 +73,7 @@ function update_location_form(lat, long) {
 
 function update_profile_location(position) {
     var $form = $('#id_latitude').closest('form'),
+        btn = ajax_start($form),
         update_location = $.ajax({
             url: $form.attr("action"),
             data: {
@@ -87,7 +88,8 @@ function update_profile_location(position) {
                 } else {
                     $.jGrowl(data.errors, {life: 5000, header: 'Error'});
                 }
-            }
+            },
+            complete: function(){ ajax_complete(btn); }
         });
 }
 
@@ -133,11 +135,12 @@ $(function() {
         event.preventDefault();
         var link = $(this).data('url'),
             self = $(this),
+            btn = ajax_start(self),
             ajax_delete = $.ajax({
                 url: link
             }).success(function() {
                self.closest('article').remove();
-            });
+            }).complete(function(){ ajax_complete(btn); });
     });
 
     /* Adding and editing new sites */
@@ -153,6 +156,7 @@ $(function() {
         e.preventDefault();
         var url = $(this).attr('action'),
             $form = $(this),
+            btn = ajax_start($form),
             site = $.ajax({
                 url: url,
                 data: {
@@ -190,7 +194,7 @@ $(function() {
                         });
                     }
                 }
-            });
+            }).complete(function(){ ajax_complete(btn); });
     });
     $('.add_site_form .negative').live('click', function(e) {
         e.preventDefault();
@@ -218,6 +222,7 @@ $(function() {
         e.preventDefault();
         var url = $(this).attr('action'),
             $form = $(this),
+            btn = ajax_start($form),
         site = $.ajax({
             url: url,
             data: {
@@ -255,7 +260,7 @@ $(function() {
                     });
                 }
             }
-        });
+        }).complete(function(){ ajax_complete(btn); });
     });
 
     $('#live_geolocation').next('form').live('submit', function(e) {
@@ -267,7 +272,8 @@ $(function() {
     $('.location_search_form').live('submit', function(e) {
         e.preventDefault();
         var url = $(this).attr('action'),
-            $form = $(this);
+            $form = $(this),
+            btn = ajax_start($form);
         var coords = $.ajax({
             url: url,
             data: {
@@ -284,6 +290,8 @@ $(function() {
                 $('#id_longitude').val(data.lng);
                 show_map();
             }
+        }).complete(function(){
+            ajax_complete(btn);
         });
     });
 
@@ -315,7 +323,8 @@ $(function() {
     // Tweet It
     $('#tweet_it').live('click', function(e) {
         var url = $('#hide_tweet').attr('href'),
-            $self = $(this);
+            $self = $(this),
+            btn = ajax_start($self);
         $.ajax({
             url: url,
             type: 'GET',
@@ -324,12 +333,13 @@ $(function() {
             if (data.success) {
                 $self.parent().remove();
             }
-        });
+        }).complete(function(){ ajax_complete(btn); });
     });
     $('#hide_tweet').live('click', function(e) {
         e.preventDefault();
         var url = $(this).attr('href'),
-            $self = $(this);
+            $self = $(this),
+            btn = ajax_start($self);
         $.ajax({
             url: url,
             type: 'GET',
@@ -338,7 +348,7 @@ $(function() {
             if (data.success) {
                 $self.parent().remove();
             }
-        });
+        }).complete(function(){ ajax_complete(btn); });
     });
 
     // Profile Form
@@ -347,6 +357,7 @@ $(function() {
         clear_form_errors($(this));
         var $form = $(this),
             url = $(this).attr('action'),
+            btn = ajax_start($form),
             profile = $.ajax({
                 url: url,
                 data: {
@@ -358,7 +369,9 @@ $(function() {
                     location_description: $form.find('#id_location_description').val(),
                     available_for: $form.find('#id_available_for').val(),
                     service_facebook: $form.find('#id_service_facebook').val(),
-                    service_linkedin: $form.find('#id_service_linkedin').val()
+                    service_linkedin: $form.find('#id_service_linkedin').val(),
+                    service_freelancercom: $form.find('#id_service_freelancercom').val(),
+                    service_flickr: $form.find('#id_service_flickr').val()
                 },
                 type: 'POST',
                 dataType: 'json'
@@ -384,7 +397,7 @@ $(function() {
                         });
                     }
                 }
-            });
+            }).complete(function(){ ajax_complete(btn); });
     });
 });
 

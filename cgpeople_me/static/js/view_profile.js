@@ -45,7 +45,7 @@ $(function() {
         e.preventDefault();
         var url = $(this).attr('action'),
             self = $(this),
-
+            btn = ajax_start(self),
             message = $.ajax({
                 url: url,
                 data: {
@@ -83,7 +83,7 @@ $(function() {
             }).error(function(data) {
                 $.jGrowl("There was a problem sending your message. Please try again.", {life: 5000, header: 'Error'});
                 return false;
-            });
+            }).complete(function(){ ajax_complete(btn); });
     });
 
     $('.site .controls').live('click', function(e) {

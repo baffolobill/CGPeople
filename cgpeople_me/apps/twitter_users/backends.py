@@ -16,7 +16,7 @@ class TwitterBackend(object):
                 info.save()
             user = info.user
         except TwitterInfo.DoesNotExist:
-            email = "%s@twitter.com" % username
+            email = None  # "%s@twitter.com" % username
             user = User.objects.create_user(settings.USERS_FORMAT % username, email)
             user.save()
             info = TwitterInfo(user=user, name=username, id=twitter_id, token=token, secret=secret)

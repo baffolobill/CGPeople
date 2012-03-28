@@ -22,35 +22,6 @@ $(function() {
         window.history.pushState('', 'Title', '/messages/');
     });
 
-    $('button.archive').live('click', function(e) {
-        if (!$(this).data('read')) {
-            var $parent = $(this).parents('.message'),
-                url = $(this).data('url'),
-                read = $.ajax({
-                    url: url,
-                    type: 'GET',
-                    dataType: 'json'
-                }).success(function(data) {
-                    if (data.success) {
-                        var clone = $parent.clone();
-                        clone.find('button.archive').remove();
-                        clone.removeClass('active');
-                        clone.find('.full').hide().end().find('.preview').show();
-                        clone.prependTo('#read_messages');
-
-                        $parent.fadeOut(200, function() {
-                            $parent.remove();
-                            update_unread_count();
-                        });
-                        window.history.pushState('', 'Title', '/messages/');
-                    } else {
-                        $.jGrowl(data.message, {life: 5000, header: 'Error'});
-                    }
-                });
-        }
-
-    });
-
     $('button.delete').live('click', function(event) {
         event.preventDefault();
         var link = $(this).data('url'),
@@ -73,6 +44,7 @@ $(function() {
         event.preventDefault();
         var link = $(this).data('url'),
             $parent = $(this).parents('article'),
+            btn = ajax_start($(this)),
             ajax_delete = $.ajax({
                 url: link
             }).success(function(data) {
@@ -84,7 +56,7 @@ $(function() {
                 } else {
                     $.jGrowl(data.message, {life: 5000, header: 'Error'});
                 }
-            });
+            }).complete(function(){ ajax_complete(btn); });
     });
 
     $('.message_form form button.negative').live('click', function(e) {
@@ -100,6 +72,7 @@ $(function() {
         e.preventDefault();
         var $form = $(this).parents('form'),
             url = $form.attr('action'),
+            btn = ajax_start($form),
             message = $.ajax({
                 url: url,
                 data: {
@@ -138,7 +111,7 @@ $(function() {
             }).error(function(data) {
                 $.jGrowl("There was a problem sending your message. Please try again.", {life: 5000, header: 'Error'});
                 return false;
-            });
+            }).complete(function(){ ajax_complete(btn); });
     });
 
     /*$.history.init(function(hash) {
