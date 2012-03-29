@@ -8,6 +8,7 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = (
     ("Lex", "baffolobill@yandex.ru"),
 )
+DEFAULT_FROM_EMAIL = 'no-reply@cgpeople.me'
 
 MANAGERS = ADMINS
 

@@ -43,5 +43,5 @@ def message_email_notification( message,
         if recipients:
             send_mail(subject, email_message, settings.DEFAULT_FROM_EMAIL, recipients)
     except Exception, e:
-        # print e
+    #    print e
         pass #fail silently

@@ -3,7 +3,7 @@
 Participants: {% for p in message.thread.all.0.participants.all %}{{ p.user.profile.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
 
  --
-{{ message.body }}
+{{ message.message }}
  --
 Inbox: {{ site_url }}{% url messages_inbox %}
 
