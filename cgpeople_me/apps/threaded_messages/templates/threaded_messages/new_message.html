@@ -6,4 +6,4 @@ Participants: {% for p in message.thread.all.0.participants.all %}{{ p.user.prof
  --
 Inbox: {{ site_url }}{% url messages_inbox %}
 
-Sent by {{ site_url }} at {% now "Y-m-d HH:MM" %}
+Sent by {{ site_url }} at {% now "Y-m-d H:i" %}
