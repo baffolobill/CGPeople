@@ -1,7 +1,6 @@
 {{ message.sender_name }} sent you a {% if message.parent_msg %}reply{% else %}message{% endif %} on {{ site_name }}:
 
 Participants: {% for p in message.thread.all.0.participants.all %}{{ p.user.profile.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
-
  --
 {{ message.message }}
  --
