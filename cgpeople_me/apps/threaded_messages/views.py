@@ -164,6 +164,8 @@ def view(request, thread_id, form_class=ReplyForm,
     return JSONResponse({'success': 1, 'html': html, 'opponent': participant.others()[0].user_name})
 
 
-@login_required
 def messages_count(request):
-    return JSONResponse({'unread': inbox_count_for(request.user)})
+    if request.user.is_authenticated():
+        return JSONResponse({'unread': inbox_count_for(request.user)})
+    else:
+        return JSONResponse({'unread': 0})

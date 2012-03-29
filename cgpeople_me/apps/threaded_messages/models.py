@@ -140,6 +140,6 @@ def inbox_count_for(user):
             deleted_at__isnull=True) if p.new()])
 
 
-#import signals
-#from utils import message_email_notification
-#signals.threaded_message_sent.connect(message_email_notification)
+import signals
+from utils import message_email_notification
+signals.threaded_message_sent.connect(message_email_notification)
