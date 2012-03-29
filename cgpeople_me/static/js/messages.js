@@ -1,25 +1,56 @@
 $(function() {
-    $('.message:not(.active)').live('click', function(e) {
-        var message = $(this),
-            full = $('.full', message),
-            preview = $('.preview', message);
+    $('#unreadTab .message__body, #archiveTab .message__body').live('click', function(e) {
+        var url = $(this).parents('.message').data('url'),
+            $tabs = $('ul.tabs'),
+            view_msgs = $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json'
+            }).success(function(data) {
+                if (data.success) {
+                    $('#view_messages').html(data.html);
+                    $tabs.find('#view-tab-item').show().find('a').trigger('click');
 
-        message.siblings('article').find('.full').hide().end().find('.preview').show().end().removeClass('active').end().addClass('active');
-        preview.hide();
-        full.show();
-        window.history.pushState('', 'Title', '/messages/#' + message.attr('id'));
+                    $('#id_message').autoResize();
+                    $('#id_message').keydown();
+
+                    update_unread_count();
+                } else {
+                    $.jGrowl(data.error, {life: 5000, header: 'Error'});
+                }
+            });
     });
 
-    $('.full form').live('click', function(e) {
-        e.preventDefault();
-    });
+    $('button.archive').live('click', function(event){
+        event.preventDefault();
+        var $parent = $(this).parents('.message'),
+            url = $(this).data('url'),
+            archive = $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json'
+            }).success(function(data) {
+                if (data.success) {
+                    var clone = $parent.clone();
+                    clone.find('button.archive').remove();
+                    clone.prependTo('#archived_messages');
 
-    $('.hide').live('click', function(e) {
-        e.preventDefault();
-        $('.message_form form', this).remove();
-        $(this).closest('article').hide().siblings('.preview').show();
-        $(this).closest('.message').removeClass('active');
-        window.history.pushState('', 'Title', '/messages/');
+                    $parent.fadeOut(200, function() {
+                        $parent.remove();
+                        if (!$('#unread_messages>.message').length){
+                            $('#unread_messages>.no-messages').show();
+                        }
+                        if ($('#archived_messages>.message').length){
+                            $('#archived_messages>.no-messages').hide();
+                        }
+                        update_unread_count();
+                    });
+                    //window.history.pushState('', 'Title', '/messages/');
+                } else {
+                    $.jGrowl(data.error, {life: 5000, header: 'Error'});
+                }
+            });
+        return false;
     });
 
     $('button.delete').live('click', function(event) {
@@ -27,8 +58,7 @@ $(function() {
         var link = $(this).data('url'),
             $parent = $(this).parent();
         $(this).remove();
-        $parent.append(
-            '<button class="cancel_delete right">Cancel</button> <button data-url="' + link + '" class="delete_confirmed negative"><span class="trash icon"></span>Destroy</button>');
+        $parent.append('<button class="cancel_delete right">Cancel</button> <button data-url="' + link + '" class="delete_confirmed negative"><span class="trash icon"></span>Destroy</button>');
     });
 
     $('button.cancel_delete').live('click', function(event) {
@@ -51,6 +81,12 @@ $(function() {
                 if (data.success) {
                     $parent.fadeOut(200, function() {
                         $parent.remove();
+                        if (!$('#unread_messages>.message').length){
+                            $('#unread_messages>.no-messages').show();
+                        }
+                        if (!$('#archived_messages>.message').length){
+                            $('#archived_messages>.no-messages').show();
+                        }
                         update_unread_count();
                     });
                 } else {
@@ -59,14 +95,7 @@ $(function() {
             }).complete(function(){ ajax_complete(btn); });
     });
 
-    $('.message_form form button.negative').live('click', function(e) {
-        e.preventDefault();
 
-        var $form = $(this).parents('form');
-
-        reset_form($form);
-        $form.closest('article').find('.hide').trigger('click');
-    });
 
     $('.message_form form button.positive').live('click', function(e) {
         e.preventDefault();
@@ -76,11 +105,8 @@ $(function() {
             message = $.ajax({
                 url: url,
                 data: {
-                    sender_name: $form.find('#id_name').val(),
-                    sender_email: $form.find('#id_email').val(),
                     message: $form.find('#id_message').val(),
                     csrfmiddlewaretoken: $form.find('input[name=csrfmiddlewaretoken]').val(),
-                    user_id: $form.find('#id_user_id').val(),
                     winnie_the_pooh: $form.find('input[name=winnie_the_pooh]').val()
                 },
                 type: 'POST'
@@ -88,7 +114,8 @@ $(function() {
                 if (data.success) {
                     $.jGrowl(data.message, {life: 5000, header: 'Success'});
                     reset_form($form);
-                    $form.closest('article').find('.hide').trigger('click');
+                    $('#message_list').append(data.html);
+                    $('#id_message').keydown();
                 } else {
                     if (data.field_errors || data.non_field_errors) {
                         $form.find('.field_error').remove();

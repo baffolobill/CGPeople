@@ -1,0 +1,18 @@
+{% load i18n %}
+{% load markdown_deux_tags %}
+
+<article class="message clearfix {% if unread %} unread{% endif %}" id="msg_{{ msg.id }}">
+    <header>
+    {% if not thread.is_anonymous %}
+    <a href="{{ msg.sender.profile.get_absolute_url }}">{{ msg.sender.profile.name }}</a>
+    {% else %}
+    {{ msg.sender_name }}
+    {% endif %}
+    </header>
+    <time datetime="{{ msg.sent_at|date:"F j, Y, P" }}">{{ msg.sent_at|date:"m/j/y P" }}</time>
+    <section class="message__body clearfix">
+        <article class="full">
+            {{ msg.message|markdown }}
+        </article>
+    </section>
+</article>

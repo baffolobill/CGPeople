@@ -126,7 +126,8 @@ THIRD_PARTY_APPS = (
     "machinetags",
     "cities",
     "taggit",
-    "django_messages",
+    #"django_messages",
+    "threaded_messages",
     "markdown_deux",
 )
 

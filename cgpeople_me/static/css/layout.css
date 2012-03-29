@@ -389,30 +389,54 @@ section.messages article.preview {
   border-width:0;
   padding-top:0;
 }
-section.messages article:hover { background-color:#fff; }
+section.messages article:hover,
+section.messages article.hover { background-color: #EDF1F5; border-color: #DAE1E8; }
 
-.message { cursor:pointer; position: relative; padding: 5px; }
+.message { position: relative; padding: 5px; }
 .message.active {
   background:#fff;
   border:2px solid #3c3c3c !important;
   cursor:default;
 }
+.message.unread .message__body {
+  background: #ececec;
+}
+section.messages article:hover .message__body,
+section.messages article.hover .message__body { background: none !important; }
+
 .message header,
 .message time {
   position: absolute;
-  line-height: 1.2;
+  font-size: 11px;
 }
-.message time { margin-top: 21px; }
+.message time { margin-top: 18px; font-size: 0.9em; }
 .message__body {
-  width: 600px;
+  width: 550px;
   float: left;
-  margin-left: 130px;
+  margin-left: 150px;
+  min-height: 35px;
+  cursor:pointer;
+  padding: 6px 8px 8px;
 }
 .message .controls {
-  width: 150px;
+  width: 212px;
   float: right;
 }
+.message .controls .archive { margin-left: 10px; }
 
+.message_form {
+  margin: 0;
+  padding: 8px 15px 0 67px;
+  border-top: 1px solid #DAE1E8;
+  background: #f2f2f2;
+}
+.message_form p#message_fieldset {
+  width: 360px;
+  margin: 0 0 5px;
+}
+.message_form form,
+.message_form textarea { margin: 0 !important; }
+.message_form textarea { min-height: 0; }
 
 /* #Media Queries
 ================================================== */

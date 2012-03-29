@@ -12,7 +12,7 @@ from django.contrib.gis.geos import Point, fromstr
 from django.contrib.auth import logout
 
 from cities.models import City
-from django_messages.models import Message
+from threaded_messages.models import Message, Participant, Thread
 
 from machinetags.utils import tagdict
 from machinetags.models import MachineTaggedItem
@@ -343,10 +343,14 @@ class ReallyDeleteProfileView(View):
 
         profile = get_object_or_404(models.Profile, user=self.request.user)
         profile.portfoliosite_set.all().delete()
-        #profile.skills.all().delete()
-        profile.user.twitterinfo.delete()
-        Message.objects.filter(recipient=profile.user).delete()
+        profile.skills.clear()
+
         Message.objects.filter(sender=profile.user).update(sender=None)
+        part_s = Participant.objects.filter(user=profile.user)  #.update(user=None, thread__is_anonymous=True)
+        Thread.objects.filter(id__in=[p.thread.id for p in part_s]).update(is_anonymous=True)
+        part_s.update(user=None)
+
+        profile.user.twitterinfo.delete()
         profile.user.delete()
         profile.delete()
         logout(request)

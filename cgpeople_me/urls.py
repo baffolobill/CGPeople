@@ -9,7 +9,8 @@ urlpatterns = patterns('',
 
     url (r'', include('generic.urls')),
     url(r'^twitter/', include('twitter_users.urls')),
-    url(r'^messages/', include('django_messages.urls')),
+    #url(r'^messages/', include('django_messages.urls')),
+    url(r'^messages/', include('threaded_messages.urls')),
 )
 
 if settings.DEBUG:

@@ -1,0 +1,69 @@
+{% extends "threaded_messages/base.html" %}
+{% load markdown_deux_tags %}
+
+{% block content %}
+<h1 id="page_title" class="clearfix clear">Messages</h1>
+<ul class="tabs clear">
+    <li><a class="active" href="#unread">Conversations</a></li>
+    <li><a href="#archive">Archive</a></li>
+    <li style="display:none;" id="view-tab-item"><a href="#view">View</a></li>
+</ul>
+<ul class="tabs-content">
+    <li id="unreadTab" class="active">
+
+<section id="unread_messages" class="messages clearfix clear">
+    {% for p in thread_list %}
+    <article class="message clearfix{% if p.new %} unread{% endif %}" id="msg_{{ p.thread.id }}" data-url="{% url messages_detail p.thread.id %}">
+        <header class="two columns omega">
+        {% if not p.thread.is_anonymous %}
+        <a href="{{ p.others.0.user.profile.get_absolute_url }}">{{ p.others.0.user.profile.name }}</a>
+        {% else %}
+        {{ p.others.0.user_name }}
+        {% endif %}
+        </header>
+        <time datetime="{{ p.thread.latest_msg.sent_at|date:"F j, Y, P" }}">{{ p.thread.latest_msg.sent_at|date:"m/j/y P" }}</time>
+        <section class="message__body clearfix">
+            <article class="preview">
+                {{ p.thread.latest_msg.message|truncatechars:140|markdown }}
+            </article>
+        </section>
+        <div class="controls clearfix">
+            <button data-url="{% url messages_archive p.thread.id %}" class="archive right">Archive</button>
+            <button data-url="{% url messages_delete p.thread.id %}" class="delete right">Delete</button>
+        </div>
+    </article>
+    {% endfor %}
+    <p class="clear no-messages" {% if thread_list|length %} style="display:none;"{% endif %}>No messages.</p>
+</section>
+
+    </li>
+    <li id="archiveTab">
+<section id="archived_messages" class="messages clearfix clear">
+    {% for p in archive_list %}
+    <article class="message clearfix" id="msg_{{ p.thread.id }}" data-url="{% url messages_detail p.thread.id %}">
+        <header class="two columns omega">
+        {% if not p.thread.is_anonymous %}
+        <a href="{{ p.others.0.user.profile.get_absolute_url }}">{{ p.others.0.user.profile.name }}</a>
+        {% else %}
+        {{ p.others.0.user_name }}
+        {% endif %}
+        </header>
+        <time datetime="{{ p.thread.latest_msg.sent_at|date:"F j, Y, P" }}">{{ p.thread.latest_msg.sent_at|date:"m/j/y P" }}</time>
+        <section class="message__body clearfix">
+            <article class="preview">
+                {{ p.thread.latest_msg.message|truncatechars:140|markdown }}
+            </article>
+        </section>
+        <div class="controls clearfix">
+            <button data-url="{% url messages_delete p.thread.id %}" class="delete right">Delete</button>
+        </div>
+    </article>
+    {% endfor %}
+    <p class="clear no-messages" {% if archive_list|length %} style="display:none;"{% endif %}>No messages.</p>
+</section>
+    </li>
+    <li id="viewTab">
+<section id="view_messages" class="messages clearfix clear"></section>
+    </li>
+</ul>
+{% endblock %}
