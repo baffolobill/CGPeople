@@ -14,7 +14,7 @@ else:
 def message_email_notification( message,
                                 template_name="threaded_messages/new_message.html",
                                 default_protocol=None,
-                                subject_prefix="New message from %s on %s: %s",
+                                subject_prefix="New message from %s on %s",
                                 *args, **kwargs):
     """
     This function sends an email and is called via Django's signal framework.
@@ -30,7 +30,7 @@ def message_email_notification( message,
     try:
         thread = message.thread.all()[0]
         current_domain = Site.objects.get_current().domain
-        subject = subject_prefix % (message.sender.username, current_domain, thread.subject)
+        subject = subject_prefix % (message.sender.username, current_domain)
         email_message = render_to_string(template_name, {
             'site_url': '%s://%s' % (default_protocol, current_domain),
             'site_name': current_domain,
