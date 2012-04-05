@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>{% block title %}{{ page.title|default:"CG People" }}{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{{ STATIC_URL }}img/favicon.png" />
+  <link href="{{ STATIC_URL }}css/iewarning/iewarning.css" type="text/css" rel="stylesheet"/>
+
+</head>
+<body class="container">
+
+<div id="ie6-warning" class="clearfix">
+  <span class="note clearfix">
+    <p>We don't support IE6, IE7 and don't optimize template under IE8 yet.</p>
+    <p>Download one of the below modern browsers and have a cup of coffee while upgrading your IE</p>
+  </span>
+  <ul>
+    <li><a class="firefox-download" href="http://www.mozilla.com/firefox/" target="_blank" title="Download Firefox">&nbsp;</a></li>
+    <li><a class="chrome-download" href="http://www.google.com/chrome" target="_blank" title="Download Chrome">&nbsp;</a></li>
+    <li><a class="safari-download" href="http://www.apple.com/safari/download/" target="_blank" title="Download Safari">&nbsp;</a></li>
+    <li><a class="opera-download" href="http://www.opera.com/download/" target="_blank" title="Download Opera">&nbsp;</a></li>
+    <li><a class="ie-download" href="http://www.microsoft.com/windows/Internet-explorer/default.aspx" target="_blank" title="Download Internet Explorer 8 NOW!">&nbsp;</a></li>
+  </ul>
+</div>
+
+</body>
+</html>

@@ -208,7 +208,11 @@ form p { margin-bottom:0; }
   text-shadow: #ccc 1px 1px 5px;
   -webkit-transform: rotate(90deg);
   -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
   transform: rotate(90deg);
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+  zoom: 1;
   z-index:99;
 }
 .corner_banner em {

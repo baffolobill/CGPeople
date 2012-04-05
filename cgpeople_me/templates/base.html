@@ -13,6 +13,13 @@
   <meta name="description" content="{{ page.description }}">
   <meta name="viewport" content="width=device-width">
   <link rel="icon" type="image/png" href="{{ STATIC_URL }}img/favicon.png" />
+
+<!--[if lt IE 7]>
+<script style="text/javascript">
+  window.location.href = '{% url ie-warning %}';
+</script>
+<![endif]-->
+
   <link rel="stylesheet" href="{{ STATIC_URL }}css/style.css">
   <link rel="stylesheet" href="{{ STATIC_URL }}css/template.css">
   <link rel="stylesheet" href="{{ STATIC_URL }}css/leaflet/leaflet.css">
@@ -23,6 +30,7 @@
   {% block extra_css %}{% endblock %}
 
   <script src="{{ STATIC_URL }}js/libs/modernizr-2.5.3.min.js"></script>
+  <script src="{{ STATIC_URL }}js/libs/css3-multi-column.js"></script>
 </head>
 <body class="container">
   <!--[if lt IE 7]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
