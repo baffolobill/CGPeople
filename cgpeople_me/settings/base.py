@@ -2,7 +2,7 @@ from unipath import FSPath as Path
 
 PROJECT_ROOT = Path(__file__).absolute().ancestor(2)
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
