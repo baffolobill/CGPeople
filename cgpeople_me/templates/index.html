@@ -16,7 +16,7 @@
 <div class="search_form clearfix">
     <section id="search_form">
         <h3>{% trans 'Find someone' %}</h3>
-        <form action="{% url search %}" method="POST" class="clearfix">
+        <form action="{{ site_url }}{% url search %}" method="POST" class="clearfix">
             {% csrf_token %}
             <p id="location_fieldset">
                 <label for="id_location">{% trans 'Location' %}</label>

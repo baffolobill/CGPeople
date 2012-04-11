@@ -1,8 +1,10 @@
 import urllib, urllib2
 
 from django import http
+from django.conf import settings
 from django.utils import simplejson
 from django.utils.encoding import smart_str
+from django.contrib.sites.models import Site
 
 
 class JSONResponse(http.HttpResponse):
@@ -39,3 +41,12 @@ def get_lat_lng(location):
         return coords if len(coords) else None
     else:
         return None
+
+def get_site_url():
+    protocol = getattr(settings, "PROTOCOL", "http")
+    domain = Site.objects.get_current().domain
+    port = getattr(settings, "PORT", "")
+    if port:
+        assert port.startswith(":"), "The PORT setting must have a preceeding ':'."
+
+    return "%s://%s%s" % (protocol, domain, port)

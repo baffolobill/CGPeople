@@ -11,6 +11,6 @@
     <p>{% blocktrans %}If it's something we did, please, <a href="mailto:devs@cgpeople.me">let us know</a>, especially if it's something we can fix.{% endblocktrans %}</p>
 
     <p>{% blocktrans %}But, if you're <em>really</em> sure, go ahead and click this button and we'll remove your account from our system:{% endblocktrans %}</p>
-    <p class="prepend-top"><a href="{% url profile-delete-really %}" class="button big negative">{% blocktrans %}Yes, I'm <em>really</em> sure</a>{% endblocktrans %}</p>
+    <p class="prepend-top"><a href="{{ site_url }}{% url profile-delete-really %}" class="button big negative">{% blocktrans %}Yes, I'm <em>really</em> sure</a>{% endblocktrans %}</p>
 </div>
 {% endblock %}

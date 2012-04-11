@@ -10,7 +10,7 @@
 
 {% if not thread.is_anonymous %}
 <section class="message_form clearfix">
-    <form action="{% url messages_detail thread.id %}" method="POST">{% csrf_token %}
+    <form action="{{ site_url }}{% url messages_detail thread.id %}" method="POST">{% csrf_token %}
         <p id="message_fieldset">
             <textarea name="message" required id="id_message"></textarea>
         </p>

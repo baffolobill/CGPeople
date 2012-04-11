@@ -13,7 +13,7 @@
 
 <section id="unread_messages" class="messages clearfix clear">
     {% for p in thread_list %}
-    <article class="message clearfix{% if p.new %} unread{% endif %}" id="msg_{{ p.thread.id }}" data-url="{% url messages_detail p.thread.id %}">
+    <article class="message clearfix{% if p.new %} unread{% endif %}" id="msg_{{ p.thread.id }}" data-url="{{ site_url }}{% url messages_detail p.thread.id %}">
         <header class="two columns omega">
         {% if not p.thread.is_anonymous %}
         <a href="{{ p.others.0.user.profile.get_absolute_url }}">{{ p.others.0.user.profile.name }}</a>
@@ -28,8 +28,8 @@
             </article>
         </section>
         <div class="controls clearfix">
-            <button data-url="{% url messages_archive p.thread.id %}" class="archive right">Archive</button>
-            <button data-url="{% url messages_delete p.thread.id %}" class="delete right">Delete</button>
+            <button data-url="{{ site_url }}{% url messages_archive p.thread.id %}" class="archive right">Archive</button>
+            <button data-url="{{ site_url }}{% url messages_delete p.thread.id %}" class="delete right">Delete</button>
         </div>
     </article>
     {% endfor %}
@@ -40,7 +40,7 @@
     <li id="archiveTab">
 <section id="archived_messages" class="messages clearfix clear">
     {% for p in archive_list %}
-    <article class="message clearfix" id="msg_{{ p.thread.id }}" data-url="{% url messages_detail p.thread.id %}">
+    <article class="message clearfix" id="msg_{{ p.thread.id }}" data-url="{{ site_url }}{% url messages_detail p.thread.id %}">
         <header class="two columns omega">
         {% if not p.thread.is_anonymous %}
         <a href="{{ p.others.0.user.profile.get_absolute_url }}">{{ p.others.0.user.profile.name }}</a>
@@ -55,7 +55,7 @@
             </article>
         </section>
         <div class="controls clearfix">
-            <button data-url="{% url messages_delete p.thread.id %}" class="delete right">Delete</button>
+            <button data-url="{{ site_url }}{% url messages_delete p.thread.id %}" class="delete right">Delete</button>
         </div>
     </article>
     {% endfor %}

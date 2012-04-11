@@ -14,6 +14,8 @@ from cities.util import geo_distance
 from machinetags.models import MachineTaggedItem, add_machinetag
 from taggit.managers import TaggableManager
 
+from .utils import get_site_url
+
 
 class ProfileManager(models.GeoManager):
     def get_query_set(self):
@@ -84,7 +86,8 @@ class Profile(models.Model):
         return unicode(self.name)
 
     def get_absolute_url(self):
-        return reverse('profile', args=[self.user.username])
+        return "%s%s" % (get_site_url(),
+                        reverse('profile', args=[self.user.username]))
 
     @property
     def username(self):

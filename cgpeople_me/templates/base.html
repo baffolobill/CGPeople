@@ -16,7 +16,7 @@
 
 <!--[if lte IE 8]>
 <script style="text/javascript">
-  window.location.href = '{% url ie-warning %}';
+  window.location.href = '{{ site_url }}{% url ie-warning %}';
 </script>
 <![endif]-->
 
@@ -40,21 +40,21 @@
           <a href="{% url index %}"><span class="word1">CG</span> <span class="word2">P<span class="char2">e</span>ople</span></a>
       </h1>
       {% endcomment %}
-      <a href="{% url index %}" class="logo"></a>
+      <a href="{{ site_url }}{% url index %}" class="logo"></a>
 
       <div class="clearfix" id="user_info">
-        <a href="{% url browse %}" class="clearfix">{% trans 'Browse members' %}</a>
+        <a href="{{ site_url }}{% url browse %}" class="clearfix">{% trans 'Browse members' %}</a>
         {% if user.is_authenticated %}
-          <a href="{% url profile-edit %}" class="clearfix settings">{% trans 'Edit Profile' %}</a>
-          <a href="{% url messages_inbox %}" class="clearfix" id="messages_button">{% trans 'Messages' %}</a>
-          <a href="{% url twitter-logout %}" class="clearfix">{% trans 'Logout' %}</a>
+          <a href="{{ site_url }}{% url profile-edit %}" class="clearfix settings">{% trans 'Edit Profile' %}</a>
+          <a href="{{ site_url }}{% url messages_inbox %}" class="clearfix" id="messages_button">{% trans 'Messages' %}</a>
+          <a href="{{ site_url }}{% url twitter-logout %}" class="clearfix">{% trans 'Logout' %}</a>
 
-          <a href="{% url profile user.username %}" class="clearfix">
+          <a href="{{ site_url }}{% url profile user.username %}" class="clearfix">
             <img src="http://img.tweetimag.es/i/{{ user.twitterinfo.name }}_m"
                 alt="{{ user.twitterinfo.name }}"
                 class="right" width="24" height="24"></a>
         {% else %}
-          <a href="{% url twitter-login %}" class="button" id="twitter_account"><span></span>{% trans 'Your Account' %}</a>
+          <a href="{{ site_url }}{% url twitter-login %}" class="button" id="twitter_account"><span></span>{% trans 'Your Account' %}</a>
         {% endif %}
       </div>
     </div>
@@ -65,7 +65,7 @@
     {% block body %}{% endblock %}
 
   <footer>
-    <p class="">&copy; <a href="http://cgpeople.me">CGPeople.me</a>. {% trans 'All rights reserved.' %} <a href="{% url privacy %}">{% trans 'Privacy' %}</a></p>
+    <p class="">&copy; <a href="{{ site_url }}">CGPeople.me</a>. {% trans 'All rights reserved.' %} <a href="{{ site_url }}{% url privacy %}">{% trans 'Privacy' %}</a></p>
   </footer>
 
   </div>
