@@ -221,6 +221,36 @@ p {
     line-height: 21px;
 }
 
+.page_url__wrap {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    clear: both;
+    float:left;
+}
+.page_url__prefix { width: 45px; }
+.page_url__name { width: 280px !important; float:left; }
+.page_url__postfix { width: 80px; }
+.page_url__prefix,
+.page_url__postfix {
+    float: left;
+    font-size: 1.2em;
+    font-weight: bold;
+    line-height: 30px;
+    vertical-align: bottom;
+}
+label.label {
+    font-weight: normal;
+    display: inline;
+}
+input[type="checkbox"] {
+    width: 20px !important;
+}
+p.prepend-top {
+    margin-top: 20px;
+}
+
+
 #message h3 {
     font-size: 28px;
     line-height: 34px;

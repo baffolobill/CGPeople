@@ -15,15 +15,22 @@
         </div>
         <hgroup class="header clearfix">
             <h2 class="profile__name">{{ profile.name }}</h2>
+            {% if profile.location_description %}
             <h3>{{ profile.location_description }}</h3>
+            {% endif %}
         </hgroup>
     </header>
 
-    {% if not is_owner %}
+
     <div class="clearfix">
+        {% if not is_owner %}
         <button class="show_message_form">{% trans 'Contact me' %}</button>
+        {% endif %}
+
+        <input type="text" readonly="readonly" id="page_url_field" value="{{ profile.get_page_url }}"
+             onclick="document.getElementById('page_url_field').select();" style="float:right;width:350px !important;">
     </div>
-    {% endif %}
+
 
     {% if profile.available_for > 0 %}
     <h3 class="available clearfix">I&rsquo;m available for {{ profile.get_available_for_display|lower }}!</h3>

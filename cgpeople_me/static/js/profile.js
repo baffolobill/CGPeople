@@ -369,6 +369,8 @@ $(function() {
                     skills: $form.find('#id_skills').val(),
                     location_description: $form.find('#id_location_description').val(),
                     available_for: $form.find('#id_available_for').val(),
+                    page_url: $form.find('#id_page_url').val(),
+                    hide_from_search: $form.find('#id_hide_from_search').is(':checked'),
                     service_facebook: $form.find('#id_service_facebook').val(),
                     service_linkedin: $form.find('#id_service_linkedin').val(),
                     service_freelancercom: $form.find('#id_service_freelancercom').val(),
@@ -380,23 +382,25 @@ $(function() {
                 if (data.success) {
                     $.jGrowl(data.success, {life: 5000, header: 'Success'});
                 } else {
-                    if (data.field_errors || data.non_field_errors) {
-                        $form.find('.field_error').remove();
-                        $form.find('.error').removeClass('error');
+                    try {
+                        if (data.field_errors || data.non_field_errors) {
+                            $form.find('.field_error').remove();
+                            $form.find('.error').removeClass('error');
 
-                        $.each(data.field_errors, function(index, value) {
-                            var label = $('label[for=id_' + index + ']'),
-                                error = $('<span>' + value + '</span>'),
-                                fieldset = $('#' + index + '_fieldset');
-                            fieldset.addClass('error');
-                            error.addClass('error field_error').appendTo(label).text(value);
-                        });
+                            $.each(data.field_errors, function(index, value) {
+                                var label = $('label[for=id_' + index + ']'),
+                                    error = $('<span>' + value + '</span>'),
+                                    fieldset = $('#' + index + '_fieldset');
+                                fieldset.addClass('error');
+                                error.addClass('error field_error').appendTo(label).text(value);
+                            });
 
-                        $.each(data.non_field_errors, function(index, value) {
-                            var error = $('<p>' + value + '</p>');
-                            error.addClass('error non_field_error').prependTo($form).text(value);
-                        });
-                    }
+                            $.each(data.non_field_errors, function(index, value) {
+                                var error = $('<p>' + value + '</p>');
+                                error.addClass('error non_field_error').prependTo($form).text(value);
+                            });
+                        }
+                    } catch (err) { ajax_complete(btn); }
                 }
             }).complete(function(){ ajax_complete(btn); });
     });

@@ -27,3 +27,19 @@ MACHINETAGS_FROM_FIELDS = dict(
     [('im_%s' % shortname, ('im', shortname))
      for shortname, name, icon in IMPROVIDERS]
 )
+
+RESERVED_USERNAMES = set((
+    # Trailing spaces are essential in these strings, or split() will be buggy
+    'feed www help security porn manage smtp fuck pop manager api owner shit '
+    'secure ftp discussion blog features test mail email administrator '
+    'xmlrpc web xxx pop3 abuse atom complaints news information imap cunt rss '
+    'info pr0n about forum admin weblog team feeds root about info news blog '
+    'forum features discussion email abuse complaints map skills tags ajax '
+    'comet poll polling thereyet filter search zoom machinetags search django '
+    'people profiles profile person navigate nav browse manage static css img '
+    'javascript js code flags flag country countries region place places '
+    'photos owner maps upload geocode geocoding login logout openid openids '
+    'recover lost signup reports report flickr upcoming mashups recent irc '
+    'group groups bulletin bulletins messages message newsfeed events company '
+    'companies active'
+).split())

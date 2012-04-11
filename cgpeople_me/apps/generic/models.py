@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
@@ -13,10 +15,16 @@ from machinetags.models import MachineTaggedItem, add_machinetag
 from taggit.managers import TaggableManager
 
 
+class ProfileManager(models.GeoManager):
+    def get_query_set(self):
+        return super(ProfileManager, self).get_query_set().exclude(hide_from_search=True)
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User)
     name = models.CharField(max_length=255)
     bio = models.TextField(blank=True)
+    page_url = models.CharField(max_length=50)
 
     # Location stuff - all location fields are required
     country = models.ForeignKey(Country, blank=True, null=True)
@@ -45,8 +53,10 @@ class Profile(models.Model):
         ), default=0
     )
     show_tweet = models.BooleanField(default=True)
+    hide_from_search = models.BooleanField(default=False)
 
     objects = models.GeoManager()
+    public = ProfileManager()
 
     def get_nearest(self, num=5):
         "Returns the nearest X people, but only within the same continent"
@@ -76,6 +86,26 @@ class Profile(models.Model):
     def get_absolute_url(self):
         return reverse('profile', args=[self.user.username])
 
+    @property
+    def username(self):
+        return self.user.username
+
+    @property
+    def is_paid(self):
+        return True
+
+    def get_page_url(self):
+        protocol = getattr(settings, "PROTOCOL", "http")
+        domain = Site.objects.get_current().domain
+        port = getattr(settings, "PORT", "")
+        if port:
+            assert port.startswith(":"), "The PORT setting must have a preceeding ':'."
+
+        if self.is_paid:
+            return "%s://%s.%s%s" % (protocol, self.page_url, domain, port)
+
+        return "%s://%s.%s%s" % (protocol, self.username, domain, port)
+
     def save(self, force_insert=False, force_update=False, **kwargs): # TODO: Put in transaction
         # Update country and region counters
         super(Profile, self).save(force_insert=False, force_update=False, **kwargs)
@@ -99,3 +129,7 @@ class PortfolioSite(models.Model):
     def __unicode__(self):
         return '%s <%s>' % (self.title, self.url)
 
+
+class PageUrlAlias(models.Model):
+    profile = models.ForeignKey(Profile)
+    page_url = models.CharField(max_length=255)

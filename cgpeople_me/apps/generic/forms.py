@@ -1,6 +1,9 @@
+import re
+
 from django import forms
 from django.forms.forms import BoundField
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext as _
 
 from taggit.forms import TagField
 
@@ -40,6 +43,9 @@ class ProfileForm(forms.ModelForm):
                 'field': BoundField(self, field, 'im_' + shortname),
             })
 
+        if self.instance.is_paid:
+            self.fields['page_url'].widget.attrs.pop('disabled')
+
     # Fields for creating a User object
     name = forms.CharField(max_length=50, required=True)
     email = forms.EmailField(required=False, widget=forms.TextInput(attrs={'type': 'email'}),
@@ -48,6 +54,8 @@ class ProfileForm(forms.ModelForm):
             required=False, help_text='Tell us a bit about you.')
     #location_description = forms.CharField(max_length=50, required=False,
     #        help_text="What you'd like others to see your location as.")
+    page_url = forms.CharField(max_length=50, required=True,
+            widget=forms.TextInput(attrs={'disabled': 'disabled', 'class': 'page_url__name'}))
 
     available_for = forms.ChoiceField(
         choices = (
@@ -59,12 +67,31 @@ class ProfileForm(forms.ModelForm):
 
     skills = TagField(required=False, help_text="to pay the bills")
 
+    hide_from_search = forms.BooleanField(required=False)
+
     def clean_email(self):
         email = self.cleaned_data['email']
         user = User.objects.filter(email=email).exclude(id=self.instance.user.pk)
         if len(user):
             raise forms.ValidationError('That e-mail is already in use')
         return email
+
+    def clean_page_url(self):
+        url = self.cleaned_data.get('page_url').lower()
+        if re.search(r'[^-a-z0-9]', url):
+            raise forms.ValidationError(_('Page url may contain only latin letters, numbers and minus sign.'))
+
+        if url in app_settings.RESERVED_USERNAMES:
+            raise forms.ValidationError(_('That page url is in reserved words.'))
+
+        # check if user paid for that
+        if not self.instance.is_paid and url != self.instance.username:
+            raise forms.ValidationError(_('It is a paid service a change page url.'))
+
+        if not len(Profile.objects.filter(page_url=url).exclude(user=self.instance.user)):
+            return url
+
+        raise forms.ValidationError(_('That page url is already used.'))
 
     def save(self, **kw):
         super(ProfileForm, self).save(**kw)
@@ -83,7 +110,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ('name', 'email', 'bio', 'skills', 'available_for')
+        fields = ('name', 'email', 'bio', 'skills', 'available_for', 'page_url', 'hide_from_search')
 
 
 class LocationForm(forms.ModelForm):

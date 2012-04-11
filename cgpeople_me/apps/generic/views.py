@@ -55,7 +55,7 @@ class ObjectListView(ObjectListMixin, JSONResponseMixin):
 
     paginate_url = 'api-profile'
 
-    queryset = models.Profile.objects.all()
+    queryset = models.Profile.public.all()
 
     paginate_by = 500
 
@@ -88,7 +88,7 @@ class SearchView(ObjectListMixin, JSONResponseMixin):
 
     paginate_url = 'search'
 
-    queryset = models.Profile.objects.all()
+    queryset = models.Profile.public.all()
 
     paginate_by = 500
 
@@ -284,7 +284,8 @@ class EditProfileView(TemplateView):
         mtags = tagdict(profile.machinetags.all())
 
         profile_form = forms.ProfileForm(initial={'name': profile.name, 'email': profile.user.email,
-            'bio': profile.bio, 'skills': ', '.join([s.name for s in profile.skills.all()]),
+            'bio': profile.bio, 'page_url': profile.page_url, 'hide_from_search': profile.hide_from_search,
+            'skills': ', '.join([s.name for s in profile.skills.all()]),
             'available_for': profile.available_for,
             'service_facebook': mtags['services']['facebook'],
             'service_linkedin': mtags['services']['linkedin'],

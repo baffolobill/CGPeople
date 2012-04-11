@@ -3,6 +3,7 @@
 {% load markdown_deux_tags %}
 
 {% block title %}{{ profile.name }} | CG People{% endblock %}
+{% block ga %}{% endblock %}
 
 {% block scripts %}
 <script type="text/javascript">
@@ -57,13 +58,14 @@
                 {{ profile_form.email }}
             </p>
 
-            {% comment %}
-            <p id="location_fieldset">
-                <label for="id_location">Location<span class="help">What you&#39;d like others to see your location as.</span></label>
 
-                {{ profile_form.location_description }}
+            <p id="page_url_fieldset">
+                <label for="id_page_url">{% trans 'Page URL' %}<span class="help">It's a paid service and cost $4/year.</span></label>
+
+                <div class="page_url__wrap">
+                    <span class="page_url__prefix">http://</span>{{ profile_form.page_url }}<span class="page_url__postfix">.cgpeople.me</span>
+                </div>
             </p>
-            {% endcomment %}
 
             <p id="skills_fieldset">
                 <label for="id_skills">{% trans 'Skills' %}<span class="help">{% trans 'to pay the bills' %}</span></label>
@@ -98,6 +100,12 @@
                 <label for="id_service_flickr">{% trans 'Flickr' %}<span class="help">Full url including https://</span></label>
 
                 {{ profile_form.service_flickr }}
+            </p>
+
+            <p id="hide_from_search_fieldset">
+                <label>{% trans 'Become a ghost' %}</label>
+
+                {{ profile_form.hide_from_search }}<label for="id_hide_from_search" class="label">{% trans "I don't wanna that my profile will be shown in search results." %}</label>
             </p>
         </section>
         <p class="prepend-top">
