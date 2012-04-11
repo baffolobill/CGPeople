@@ -95,7 +95,7 @@ class Profile(models.Model):
 
     @property
     def is_paid(self):
-        return True
+        return False
 
     def get_page_url(self):
         protocol = getattr(settings, "PROTOCOL", "http")
