@@ -49,6 +49,7 @@ $(function() {
             btn = ajax_start(self),
             message = $.ajax({
                 url: url,
+                crossDomain: true,
                 data: {
                     sender_name: self.find('#id_name').val(),
                     sender_email: self.find('#id_email').val(),
