@@ -27,7 +27,10 @@ class TwitterBackend(object):
                     id=twitter_id, token=token, secret=secret)
             info.save()
 
-        profile = Profile.objects.get_or_create(user=user, name=user.username)
+        profile, created = Profile.objects.get_or_create(user=user, name=user.username)
+        if created:
+            profile.page_url = username
+            profile.save()
 
         return user
 

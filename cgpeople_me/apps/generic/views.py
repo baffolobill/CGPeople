@@ -292,7 +292,8 @@ class EditProfileView(TemplateView):
         mtags = tagdict(profile.machinetags.all())
 
         profile_form = forms.ProfileForm(initial={'name': profile.name, 'email': profile.user.email,
-            'bio': profile.bio, 'page_url': profile.page_url, 'hide_from_search': profile.hide_from_search,
+            'bio': profile.bio, 'page_url': profile.page_url if profile.is_paid else profile.user.username,
+            'hide_from_search': profile.hide_from_search,
             'skills': ', '.join([s.name for s in profile.skills.all()]),
             'available_for': profile.available_for,
             'service_facebook': mtags['services']['facebook'],
