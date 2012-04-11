@@ -82,13 +82,14 @@ class ProfileForm(forms.ModelForm):
             raise forms.ValidationError(_('Page url may contain only latin letters, numbers and minus sign.'))
 
         if url in app_settings.RESERVED_USERNAMES:
-            raise forms.ValidationError(_('That page url is in reserved words.'))
+            raise forms.ValidationError(_('That page url is reserved.'))
 
         # check if user paid for that
         if not self.instance.is_paid and url != self.instance.username:
             raise forms.ValidationError(_('It is a paid service a change page url.'))
 
-        if not len(Profile.objects.filter(page_url=url).exclude(user=self.instance.user)):
+        if not len(Profile.objects.filter(page_url=url).exclude(user=self.instance.user)) \
+            and not len(User.objects.filter(username=url).exclude(id=self.instance.user.id)):
             return url
 
         raise forms.ValidationError(_('That page url is already used.'))

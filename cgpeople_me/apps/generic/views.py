@@ -225,7 +225,15 @@ class ProfileView(TemplateView):
     def get_context_data(self, **kwargs):
         kwargs = super(ProfileView, self).get_context_data(**kwargs)
 
-        profile = get_object_or_404(models.Profile, user__username=kwargs['params']['username'])
+
+        try:
+            profile = models.Profile.objects.get(page_url=kwargs['params']['username'])
+            if not profile.is_paid and profile.page_url != profile.user.username:
+                raise models.Profile.DoesNotExist
+
+        except models.Profile.DoesNotExist:
+            profile = get_object_or_404(models.Profile, user__username=kwargs['params']['username'])
+
         profile.profile_views += 1
         profile.save()
 
