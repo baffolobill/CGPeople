@@ -48,7 +48,7 @@ def compose(request, recipient=None, form_class=ComposeForm):
         return JSONResponse({"success": 1, 'message': _(u"Message successfully sent.")})
 
     try:
-        recipient = User.objects.get(username=recipient, id=request.POST.get('user_id', 0))
+        recipient = User.objects.get(username=recipient)  #, id=request.POST.get('user_id', 0))
     except:
         return JSONResponse({'non_field_errors': {'0': 'Incorrect recipient: %s.'%recipient}})
 
