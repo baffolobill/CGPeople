@@ -50,6 +50,7 @@ $(function() {
             message = $.ajax({
                 url: url,
                 crossDomain: true,
+                dataType: 'jsonp',
                 data: {
                     sender_name: self.find('#id_name').val(),
                     sender_email: self.find('#id_email').val(),
@@ -59,9 +60,6 @@ $(function() {
                     winnie_the_pooh: self.find('input[name=winnie_the_pooh]').val()
                 },
                 type: 'POST'
-            }).error(function(data) {
-                $.jGrowl("There was a problem sending your message. Please try again.", {life: 5000, header: 'Error'});
-                return false;
             }).success(function(data) {
                 if (data.success) {
                     $.jGrowl(data.message, {header: 'Success', life: 5000});
@@ -89,6 +87,9 @@ $(function() {
                         }
                     } catch (e) { ajax_complete(btn); }
                 }
+            }).error(function(data) {
+                $.jGrowl("There was a problem sending your message. Please try again.", {life: 5000, header: 'Error'});
+                return false;
             }).complete(function(){ ajax_complete(btn); });
     });
 

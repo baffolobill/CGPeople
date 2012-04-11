@@ -50,7 +50,7 @@ def compose(request, recipient=None, form_class=ComposeForm):
     try:
         recipient = User.objects.get(username=recipient, id=request.POST.get('user_id', 0))
     except:
-        return JSONResponse({'non_field_errors': {'0': 'Incorrect recipient.'}})
+        return JSONResponse({'non_field_errors': {'0': 'Incorrect recipient: %s.'%recipient}})
 
     req_data = request.POST.copy()
     #req_data['recipient'] = recipient.id
