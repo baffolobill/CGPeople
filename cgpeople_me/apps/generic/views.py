@@ -174,7 +174,7 @@ class SearchView(ObjectListMixin, JSONResponseMixin):
 
 
 
-        if not coords and not len(skills):
+        if not coords and not len(skills) and not available_for:
             qs = self.queryset.none()
 
         return qs
