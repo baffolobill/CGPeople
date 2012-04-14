@@ -1,5 +1,6 @@
 import datetime
 from django.db import models
+from django.db.models import Q
 from django.conf import settings
 from django.db.models import signals
 from django.db.models.query import QuerySet
@@ -135,7 +136,7 @@ def inbox_count_for(user):
     returns the number of unread messages for the given user but does not
     mark them seen
     """
-    return sum([p.thread.all_msgs.filter(sent_at__gt=p.read_at).exclude(sender=user).count() \
+    return sum([p.thread.all_msgs.filter(Q(sent_at__gt=p.read_at) if p.read_at else Q()).exclude(sender=user).count() \
             for p in Participant.objects.filter(user=user, archived_at__isnull=True, \
             deleted_at__isnull=True) if p.new()])
 

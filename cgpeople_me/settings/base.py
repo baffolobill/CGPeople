@@ -121,14 +121,11 @@ DJANGO_APPS = (
 
 THIRD_PARTY_APPS = (
     "south",
-    #"floppyforms",
-    #"crispy_forms",
     "twitter_users",
     "generic",
     "machinetags",
     "cities",
     "taggit",
-    #"django_messages",
     "threaded_messages",
     "markdown_deux",
 )
