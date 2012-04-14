@@ -40,6 +40,9 @@ def twitter_login(request, redirect_field_name='next'):
     return HttpResponseRedirect(request_token.authorization_url)
 
 def twitter_callback(request):
+    if request.GET.get('denied', None):
+        return HttpResponseRedirect(reverse('index'))
+
     oauth_token    = request.GET['oauth_token']
     oauth_verifier = request.GET['oauth_verifier']
 
