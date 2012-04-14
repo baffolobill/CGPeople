@@ -15,9 +15,18 @@ urlpatterns = patterns('',
 )
 
 if settings.DEBUG:
+    from django.views.static import serve
+    from django.utils.http import http_date
+    import time
+    def static_view(request, path, document_root):
+        response = serve(request, path, document_root)
+        response['Cache-Control'] = 'no-cache'
+        #response["Last-Modified"] = http_date(time.mktime(time.localtime()))
+        return response
+
     urlpatterns += patterns('',
-        (r'^static/(?P<path>.*)$', 'django.views.static.serve',
+        (r'^static/(?P<path>.*)$', static_view,
          {'document_root': settings.STATIC_ROOT}),
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve',
+        (r'^media/(?P<path>.*)$', static_view,
          {'document_root': settings.MEDIA_ROOT}),
     )

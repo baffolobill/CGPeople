@@ -1,5 +1,5 @@
-
 from django.conf import settings
+from django.contrib.sites.models import Site
 
 # Required
 KEY                  = settings.TWITTER_KEY
@@ -16,4 +16,4 @@ PROFILE_MODULE       = getattr(settings, 'AUTH_PROFILE_MODULE',
                                          'twitter_users.models.UserProfile')
 USERS_FORMAT         = getattr(settings, 'TWITTER_USERS_FORMAT', '%s')
 
-HOST                 = getattr(settings, 'TWITTER_CALLBACK_HOST', 'localhost:8012')
+HOST                 = getattr(settings, 'TWITTER_CALLBACK_HOST', Site.objects.get_current().domain)

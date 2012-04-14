@@ -120,6 +120,7 @@ class Profile(models.Model):
 
     class Meta:
         verbose_name_plural = 'CG People'
+        ordering = ('created_on', )
 
 
 class PortfolioSite(models.Model):

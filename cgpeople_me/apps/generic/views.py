@@ -16,6 +16,7 @@ from threaded_messages.models import Message, Participant, Thread
 
 from machinetags.utils import tagdict
 from machinetags.models import MachineTaggedItem
+from taggit.models import TaggedItem
 from . import app_settings, models, forms
 from .mixins import *
 from .utils import get_lat_lng, JSONResponse
@@ -31,8 +32,6 @@ class BaseView(JSONResponseMixin, TemplateResponseMixin, View):
             return JSONResponseMixin.render_to_response(self, context)
         else:
             return TemplateResponseMixin.render_to_response(self, context)
-
-
 
     def get_context_data(self, **kwargs):
         """
@@ -130,7 +129,11 @@ class SearchView(ObjectListMixin, JSONResponseMixin):
 
         qs = self.queryset
         if len(skills):
-            qs = qs.filter(skills__name__in=[s.strip() for s in skills.split(',')])
+            skills_filter = Q()
+            for s in skills.split(','):
+                skills_filter &= Q(tag__name__icontains=s.strip())
+
+            qs = qs.filter(skills__id__in=TaggedItem.objects.values_list('tag_id', flat=True).filter(skills_filter).distinct('object_id'))
 
         # filter by available for field
         if available_for > 0:
@@ -139,26 +142,19 @@ class SearchView(ObjectListMixin, JSONResponseMixin):
         # location might be city, region or country
         coords = get_lat_lng(loc)
         if coords:
-            qry = None
+            qry = Q()
             distance_query = []
             for crd in coords:
                 if crd['type'] == 'locality':
-                    fld = Q(country__code=crd['country'])&Q(city__name=crd['name'])
+                    qry |= Q(country__code=crd['country'])&Q(city__name=crd['name'])
                 elif crd['type'] == 'country':
-                    fld = Q(country__code=crd['country'])
+                    qry |= Q(country__code=crd['country'])
                 else:
-                    fld = Q(country__code=crd['country'])&Q(city__region__name__istartswith=crd['name'])
-                    fld |= Q(country__code=crd['country'])&Q(city__region__region_parent__name__istartswith=crd['name'])
+                    qry |= Q(country__code=crd['country'])&Q(city__region__name__istartswith=crd['name'])
+                    qry |= Q(country__code=crd['country'])&Q(city__region__region_parent__name__istartswith=crd['name'])
 
                 if distance > 0:
                     distance_query.append(Point(crd['lng'], crd['lat']))
-
-                    #fld &= Q(coords__distance_lte=(pnt, D(m=distance)))
-
-                if not qry:
-                    qry = fld
-                else:
-                    qry |= fld
 
             qs1 = qs.filter(qry)
 
@@ -182,8 +178,6 @@ class SearchView(ObjectListMixin, JSONResponseMixin):
             qs = self.queryset.none()
 
         return qs
-
-
 
 
 def geocode(request):
@@ -288,7 +282,14 @@ class EditProfileView(TemplateView):
         kwargs = super(EditProfileView, self).get_context_data(**kwargs)
         kwargs.update({"cloudmade_key": settings.CLOUDMADE_API_KEY})
 
-        profile = get_object_or_404(models.Profile, user__username=self.request.user.username)
+        if not self.request.user.is_authenticated():
+            return self.render_to_response({'error': 'You have to login to proceed this operation.'})
+
+        try:
+            profile = models.Profile.objects.get(user=self.request.user)
+        except models.Profile.DoesNotExist:
+            return self.render_to_response({'error': 'No profile for an user with username <%s>'%self.request.user.username})
+
         mtags = tagdict(profile.machinetags.all())
 
         profile_form = forms.ProfileForm(initial={'name': profile.name, 'email': profile.user.email,
@@ -309,7 +310,14 @@ class EditProfileView(TemplateView):
 class SaveProfileView(JSONResponseMixin, View):
 
     def post(self, request, *args, **kwargs):
-        profile = get_object_or_404(models.Profile, user=self.request.user)
+        if not self.request.user.is_authenticated():
+            return self.render_to_response({'error': 'You have to login to proceed this operation.'})
+
+        try:
+            profile = models.Profile.objects.get(user=self.request.user)
+        except models.Profile.DoesNotExist:
+            return self.render_to_response({'error': 'No profile for an user with username <%s>'%self.request.user.username})
+
         form = forms.ProfileForm(request.POST, instance=profile)
         if form.is_valid():
             form.save()
@@ -322,7 +330,15 @@ class SaveProfileView(JSONResponseMixin, View):
 class SavePositionView(JSONResponseMixin, View):
 
     def post(self, request, *args, **kwargs):
-        profile = get_object_or_404(models.Profile, user__username=self.request.user.username)
+        if not self.request.user.is_authenticated():
+            return self.render_to_response({'error': 'You have to login to proceed this operation.'})
+
+        try:
+            profile = models.Profile.objects.get(user=self.request.user)
+        except models.Profile.DoesNotExist:
+            return self.render_to_response({'error': 'No profile for an user with username <%s>'%self.request.user.username})
+
+
         form = forms.LocationForm(request.POST, instance=profile)
         if form.is_valid():
             profile = form.save(commit=False)
@@ -372,7 +388,14 @@ class ReallyDeleteProfileView(View):
 class AddSiteView(JSONResponseMixin, View):
 
     def post(self, request, *args, **kwargs):
-        profile = get_object_or_404(models.Profile, user=self.request.user)
+        if not self.request.user.is_authenticated():
+            return self.render_to_response({'error': 'You have to login to proceed this operation.'})
+
+        try:
+            profile = models.Profile.objects.get(user=self.request.user)
+        except models.Profile.DoesNotExist:
+            return self.render_to_response({'error': 'No profile for an user with username <%s>'%self.request.user.username})
+
         form = forms.PortfolioForm(request.POST)
         if form.is_valid():
             pflio = form.save(commit=False)
@@ -389,8 +412,18 @@ class AddSiteView(JSONResponseMixin, View):
 class EditSiteView(JSONResponseMixin, View):
 
     def post(self, request, *args, **kwargs):
-        profile = get_object_or_404(models.Profile, user=self.request.user)
-        portfolio_site = get_object_or_404(models.PortfolioSite, id=self.request.POST.get('id', -1))
+        if not self.request.user.is_authenticated():
+            return self.render_to_response({'error': 'You have to login to proceed this operation.'})
+
+        try:
+            profile = models.Profile.objects.get(user=self.request.user)
+            portfolio_site = models.PortfolioSite.objects.get(id=self.request.POST.get('id', -1), profile=profile)
+        except models.Profile.DoesNotExist:
+            return self.render_to_response({'error': 'No profile for an user with username <%s>'%self.request.user.username})
+        except models.PortfolioSite.DoesNotExist:
+            return self.render_to_response({'error': 'No portfolio site found for specified object_id <%s>' % kwargs['object_id']})
+
+
         form = forms.PortfolioForm(request.POST, instance=portfolio_site)
         if form.is_valid():
             pflio = form.save(commit=False)
@@ -407,9 +440,17 @@ class EditSiteView(JSONResponseMixin, View):
 class DeleteSiteView(JSONResponseMixin, View):
 
     def get(self, request, *args, **kwargs):
-        profile = get_object_or_404(models.Profile, user=self.request.user)
-        item = get_object_or_404(models.PortfolioSite, id=kwargs['object_id'], profile=profile)
-        item.delete()
+        if not self.request.user.is_authenticated():
+            return self.render_to_response({'error': 'You have to login to proceed this operation.'})
+
+        try:
+            profile = models.Profile.objects.get(user=self.request.user)
+            item = models.PortfolioSite.objects.get(id=kwargs['object_id'], profile=profile)
+            item.delete()
+        except models.Profile.DoesNotExist:
+            return self.render_to_response({'error': 'No profile for an user with username <%s>'%self.request.user.username})
+        except models.PortfolioSite.DoesNotExist:
+            return self.render_to_response({'error': 'No portfolio site found for specified object_id <%s>' % kwargs['object_id']})
 
         return self.render_to_response({'success': True})
 
@@ -417,7 +458,14 @@ class DeleteSiteView(JSONResponseMixin, View):
 class HideTweetView(JSONResponseMixin, View):
 
     def get(self, request, *args, **kwargs):
-        profile = get_object_or_404(models.Profile, user=self.request.user)
+        if not self.request.user.is_authenticated():
+            return self.render_to_response({'error': 'You have to login to proceed this operation.'})
+
+        try:
+            profile = models.Profile.objects.get(user=self.request.user)
+        except models.Profile.DoesNotExist:
+            return self.render_to_response({'error': 'No profile for an user with username <%s>'%self.request.user.username})
+
         profile.show_tweet = False
         profile.save()
         return self.render_to_response({'success': True})
@@ -436,3 +484,4 @@ class IndexView(TemplateView):
 class PrivacyView(TemplateView):
 
     template_name = "privacy.html"
+

@@ -4,7 +4,9 @@
 
 {% block title %}{{ profile.name }} | CG People{% endblock %}
 
-{% block scripts %}<script src="{{ STATIC_URL }}js/view_profile_loader.js"></script>{% endblock %}
+{% block scripts %}
+<script src="{{ STATIC_URL }}js/view_profile_loader.js"></script>
+{% endblock %}
 
 
 {% block body %}
@@ -27,8 +29,7 @@
         <button class="show_message_form">{% trans 'Contact me' %}</button>
         {% endif %}
 
-        <input type="text" readonly="readonly" id="page_url_field" value="{{ profile.get_page_url }}"
-             onclick="document.getElementById('page_url_field').select();" style="float:right;width:350px !important;">
+        <input type="text" id="page_url_field" readonly="readonly" value="{{ profile.get_page_url }}" style="float:right;width:350px !important;">
     </div>
 
 

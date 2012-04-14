@@ -17,8 +17,35 @@ function show_map(latitude, longitude) {
 
     map.addLayer(cloudmade).setView(pos, 10).addLayer(marker);
 }
-
+function createSelection(field, start, end) {
+    if( field.createTextRange ) {
+        var selRange = field.createTextRange();
+        selRange.collapse(true);
+        selRange.moveStart('character', start);
+        selRange.moveEnd('character', end);
+        selRange.select();
+    } else if( field.setSelectionRange ) {
+        field.setSelectionRange(start, end);
+    } else if( field.selectionStart ) {
+        field.selectionStart = start;
+        field.selectionEnd = end;
+    }
+    field.focus();
+}
 $(function() {
+    if (navigator.userAgent.match(/iPad/i) != null){
+        $('#page_url_field').removeAttr('readonly');
+        var page_url_value = $('#page_url_field').val();
+        $('#page_url_field').bind('keyup change keypress', function(event){
+            $(this).val(page_url_value);
+            createSelection(this, 0, 255);
+            return false;
+        });
+    }
+    $('#page_url_field').bind('click focus', function(){
+        createSelection(this, 0, 255);
+    });
+
     var $geo = $('#geo_wrapper');
     show_map($geo.data('latitude'), $geo.data('longitude'));
     $("textarea").autoResize();

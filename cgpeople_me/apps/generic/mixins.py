@@ -41,6 +41,9 @@ class ObjectListMixin(MultipleObjectMixin, BaseMixin, View):
 
     paginate_url = None
 
+    def get_paginate_by(self, queryset):
+        return self.request.REQUEST.get('limit', self.paginate_by)
+
     def paginate_queryset(self, queryset, page_size):
         """
         Paginate the queryset, if needed.

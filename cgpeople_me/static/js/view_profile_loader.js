@@ -5,7 +5,7 @@ yepnope([
             MEDIA_URL + 'js/libs/leaflet.js',
         ],
         complete: function() {
-            yepnope(MEDIA_URL + 'js/view_profile.js');
+            yepnope(MEDIA_URL + 'js/view_profile.js?5');
         }
     }
 ]);
