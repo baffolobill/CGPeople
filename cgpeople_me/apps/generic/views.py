@@ -133,7 +133,7 @@ class SearchView(ObjectListMixin, JSONResponseMixin):
             for s in skills.split(','):
                 skills_filter &= Q(tag__name__icontains=s.strip())
 
-            qs = qs.filter(skills__id__in=TaggedItem.objects.values_list('tag_id', flat=True).filter(skills_filter).distinct('object_id'))
+            qs = qs.filter(id__in=TaggedItem.objects.values_list('object_id', flat=True).filter(skills_filter).distinct('object_id'))
 
         # filter by available for field
         if available_for > 0:
