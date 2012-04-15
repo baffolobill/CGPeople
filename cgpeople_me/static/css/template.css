@@ -123,6 +123,53 @@ div[role=main] {
 }
 
 
+ul#cssmenu {
+    float: left;
+    font-family: "Trebuchet MC",Arial,Helvetica,sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+    height: 27px;
+    background: transparent url(../img/cssmenu/cssmenu_top_line.gif) repeat-x top left;
+    padding: 0;
+    margin: 0px 0 0 8px;
+    line-height: 1;
+}
+ul#cssmenu li {
+    overflow: hidden;
+    background: none;
+    cursor: pointer;
+    float: left;
+    margin: 0;
+    padding: 0;
+}
+
+ul#cssmenu li a,
+ul#cssmenu li a:active,
+ul#cssmenu li a:focus,
+ul#cssmenu li a:visited,
+ul#cssmenu li a:link,
+ul#cssmenu li .menu-item {
+    display: block;
+    line-height: 1;
+    margin: 0;
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 4px 6px;
+}
+
+ul#cssmenu li a.active,
+ul#cssmenu li a:hover {
+    background: url(../img/cssmenu/cssmenu_hover.png) no-repeat top left;
+}
+
+ul#cssmenu li a.active:hover,
+ul#cssmenu li a.active:active,
+ul#cssmenu li a.active:focus,
+ul#cssmenu li a.active:visited,
+ul#cssmenu li a.active:link { color: #fff; }
+
+ul#cssmenu li .disabled { color: #aaa; cursor: default; opacity: 0.5;}
+
 #masthead {
   clear: both;
   overflow: hidden;

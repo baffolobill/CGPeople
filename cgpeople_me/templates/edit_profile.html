@@ -7,7 +7,6 @@
 
 {% block scripts %}
 <script type="text/javascript">
-    //yepnope('{{ STATIC_URL }}js/message_counter.js');
     var COORDS = '{"location": {"coords": {"latitude": {{ profile.latitude|default:"0.0" }}, "longitude": {{ profile.longitude|default:"0.0" }} }}}';
 </script>
 <script src="{{ STATIC_URL }}js/profile_loader.js"></script>
@@ -26,7 +25,7 @@
     <aside class="clearfix tweet_spread" id="tweet">
         <h2>{% trans 'Spread the word!' %}</h2>
         <a href="http://twitter.com/share" class="twitter-share-button"
-            data-text="{% trans 'I just registered on CGPeople.me! #cgpeople.me' %}"
+            data-text="{% trans 'I just registered on CGPeople.me! #cgpeople #cgpeople_me' %}"
             data-url="http://cgpeople.me{{ profile.get_absolute_url }}"
             data-count="none"
             data-via="cgpeopleme" id="tweet_it">{% trans 'Tweet' %}</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
@@ -60,7 +59,7 @@
 
 
             <p id="page_url_fieldset">
-                <label for="id_page_url">{% trans 'Page URL' %}<span class="help">It's a paid service and cost $4/year.</span></label>
+                <label for="id_page_url">{% trans 'Page URL' %}<span class="help">The url change is a paid service and cost $4/year.</span></label>
 
                 <div class="page_url__wrap">
                     <span class="page_url__prefix">http://</span>{{ profile_form.page_url }}<span class="page_url__postfix">.cgpeople.me</span>

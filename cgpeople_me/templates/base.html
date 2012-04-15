@@ -11,7 +11,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
   <title>{% block title %}{{ page.title|default:"CG People" }}{% endblock %}</title>
-  <meta name="description" content="{{ page.description }}">
+  <meta name="description" content="{{ page.description|default:"Find other CG People in your area!" }}">
   {# <meta name="viewport" content="width=device-width"> #}
   <meta name="viewport" content="initial-scale=1">
   <link rel="icon" type="image/png" href="{{ STATIC_URL }}img/favicon.png" />
@@ -36,11 +36,8 @@
   {% block header %}
   <header id="masthead" class="masthead clearfix">
     <div class="wrap clearfix">
-      {% comment %}
-      <h1 class="clearfix">
-          <a href="{% url index %}"><span class="word1">CG</span> <span class="word2">P<span class="char2">e</span>ople</span></a>
-      </h1>
-      {% endcomment %}
+      {% include 'menu.html' %}
+
       <a href="{{ site_url }}{% url index %}" class="logo"></a>
 
       <div class="clearfix" id="user_info">
